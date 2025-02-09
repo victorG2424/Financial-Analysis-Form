@@ -31,6 +31,8 @@ const RetirementGoals = () => {
   };
 
   const handleAutoSaveClient1 = (values) => {
+    if (JSON.stringify(values) === JSON.stringify(formData.retirementGoals.client1)) return;
+    
     setFormData(prev => ({
       ...prev,
       retirementGoals: {
@@ -39,8 +41,10 @@ const RetirementGoals = () => {
       },
     }));
   };
-
+  
   const handleAutoSaveClient2 = (values) => {
+    if (JSON.stringify(values) === JSON.stringify(formData.retirementGoals.client2)) return;
+    
     setFormData(prev => ({
       ...prev,
       retirementGoals: {
@@ -49,6 +53,7 @@ const RetirementGoals = () => {
       },
     }));
   };
+  
 
   return (
     <div>

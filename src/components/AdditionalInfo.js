@@ -1,48 +1,58 @@
 // src/components/AdditionalInformation.js
+
+// 1. Importaciones necesarias
 import React, { useContext, useState } from 'react';
 import { Formik, Form } from 'formik';
 import { FormContext } from '../context/FormContext';
 import { Button, Grid, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import { db } from '../firebase/config';
-import { collection, addDoc } from "firebase/firestore";
 import AutoSave from './AutoSave';
+// Importamos la función que se encargará de transformar y guardar la data en Firestore
+import saveClientData from '../utils/saveClientData';
 
 const AdditionalInfo = () => {
+  // 2. Extraemos formData y setFormData desde el Context
   const { formData, setFormData } = useContext(FormContext);
+  // Los valores iniciales para este formulario son los que ya tenemos en additionalInfo
   const initialValues = formData.additionalInfo;
+  
+  // Estado local para manejar el diálogo de confirmación
   const [openModal, setOpenModal] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
 
+  // 3. Función que se ejecutará al enviar el formulario (Save Form)
   const onSubmit = async (values) => {
-    setFormData(prev => ({
-      ...prev,
-      additionalInfo: values
-    }));
+    // Creamos un nuevo objeto actualizado con la parte de additionalInfo modificada
+    const updatedFormData = { 
+      ...formData, 
+      additionalInfo: values 
+    };
 
-    // Guardar en Firestore
+    // Actualizamos el Context con los nuevos valores
+    setFormData(updatedFormData);
+
+    // Llamamos a la función saveClientData para transformar y guardar los datos en Firestore
     try {
-      const docRef = await addDoc(collection(db, "financialAnalysis"), {
-        ...formData,
-        additionalInfo: values,
-        createdAt: new Date()
-      });
-      setSaveMessage("Se ha guardado su formulario");
+      await saveClientData(updatedFormData);
+      setSaveMessage("Se ha guardado su formulario exitosamente en Firestore.");
       setOpenModal(true);
-      console.log("Documento guardado con ID: ", docRef.id);
-    } catch (e) {
-      console.error("Error al guardar el formulario: ", e);
-      setSaveMessage("Error al guardar el formulario");
+    } catch (error) {
+      console.error("Error al guardar el formulario:", error);
+      setSaveMessage("Error al guardar el formulario en Firestore.");
       setOpenModal(true);
     }
   };
 
+  // 4. Función de AutoSave para actualizar el Context conforme se escriba
+  // Se compara con los valores actuales para evitar actualizaciones infinitas
   const handleAutoSave = (values) => {
+    if (JSON.stringify(values) === JSON.stringify(formData.additionalInfo)) return;
     setFormData(prev => ({
       ...prev,
-      additionalInfo: values
+      additionalInfo: values,
     }));
   };
 
+  // 5. Función para exportar los datos a PDF (opcional)
   const handleExport = () => {
     import("jspdf").then(jsPDF => {
       const doc = new jsPDF.jsPDF();
@@ -54,10 +64,16 @@ const AdditionalInfo = () => {
   return (
     <div>
       <h2>Additional Information - Client 1</h2>
-      <Formik initialValues={initialValues} onSubmit={onSubmit} enableReinitialize>
+      {/* 6. Usamos Formik para el manejo del formulario */}
+      <Formik 
+        initialValues={initialValues} 
+        onSubmit={onSubmit} 
+        enableReinitialize
+      >
         {({ values, handleChange }) => (
           <Form>
             <Grid container spacing={2}>
+              {/* Campo para Financial Goals */}
               <Grid item xs={12}>
                 <TextField
                   fullWidth
@@ -69,6 +85,7 @@ const AdditionalInfo = () => {
                   onChange={handleChange}
                 />
               </Grid>
+              {/* Campo para GFI Recommendations */}
               <Grid item xs={12}>
                 <TextField
                   fullWidth
@@ -80,6 +97,7 @@ const AdditionalInfo = () => {
                   onChange={handleChange}
                 />
               </Grid>
+              {/* Campo para la fecha de la próxima cita */}
               <Grid item xs={12}>
                 <TextField
                   fullWidth
@@ -92,11 +110,14 @@ const AdditionalInfo = () => {
                 />
               </Grid>
             </Grid>
+            {/* 7. El componente AutoSave se encarga de actualizar el Context en tiempo real */}
             <AutoSave save={handleAutoSave} />
             <div style={{ marginTop: '20px' }}>
+              {/* Botón para enviar el formulario y guardar en Firestore */}
               <Button variant="contained" color="primary" type="submit">
                 Save Form
               </Button>
+              {/* Botón para exportar a PDF */}
               <Button variant="outlined" color="secondary" onClick={handleExport} style={{ marginLeft: '10px' }}>
                 Export
               </Button>
@@ -104,6 +125,7 @@ const AdditionalInfo = () => {
           </Form>
         )}
       </Formik>
+      {/* 8. Diálogo de confirmación para mostrar el mensaje de guardado */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)}>
         <DialogTitle>Confirmation</DialogTitle>
         <DialogContent>{saveMessage}</DialogContent>

@@ -93,24 +93,31 @@ const PersonalInfo = () => {
     };
 
     const handleAutoSaveClient1 = (values) => {
+        // Comparar usando JSON.stringify (método simple para una comparación profunda)
+        if (JSON.stringify(values) === JSON.stringify(formData.personalInfo.client1)) return;
+      
         setFormData(prev => ({
-            ...prev,
-            personalInfo: {
-                ...prev.personalInfo,
-                client1: values,
-            },
+          ...prev,
+          personalInfo: {
+            ...prev.personalInfo,
+            client1: values,
+          },
         }));
-    };
+      };
+      
 
-    const handleAutoSaveClient2 = (values) => {
+      const handleAutoSaveClient2 = (values) => {
+        if (JSON.stringify(values) === JSON.stringify(formData.personalInfo.client2)) return;
+      
         setFormData(prev => ({
-            ...prev,
-            personalInfo: {
-                ...prev.personalInfo,
-                client2: values,
-            },
+          ...prev,
+          personalInfo: {
+            ...prev.personalInfo,
+            client2: values,
+          },
         }));
-    };
+      };
+      
 
     return (
         <div>

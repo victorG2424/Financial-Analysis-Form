@@ -34,6 +34,8 @@ const InsurableNeeds = () => {
   };
 
   const handleAutoSaveClient1 = (values) => {
+    if (JSON.stringify(values) === JSON.stringify(formData.insurableNeeds.client1)) return;
+    
     setFormData(prev => ({
       ...prev,
       insurableNeeds: {
@@ -42,8 +44,10 @@ const InsurableNeeds = () => {
       },
     }));
   };
-
+  
   const handleAutoSaveClient2 = (values) => {
+    if (JSON.stringify(values) === JSON.stringify(formData.insurableNeeds.client2)) return;
+    
     setFormData(prev => ({
       ...prev,
       insurableNeeds: {
@@ -52,6 +56,7 @@ const InsurableNeeds = () => {
       },
     }));
   };
+  
 
   return (
     <div>

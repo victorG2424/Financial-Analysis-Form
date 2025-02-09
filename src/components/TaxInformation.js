@@ -14,11 +14,14 @@ const TaxInformation = () => {
   };
 
   const handleAutoSave = (values) => {
+    if (JSON.stringify(values) === JSON.stringify(formData.taxInformation)) return;
+  
     setFormData(prev => ({
       ...prev,
       taxInformation: values,
     }));
   };
+  
 
   return (
     <div>
