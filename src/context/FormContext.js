@@ -16,8 +16,10 @@ const initialState = {
       trust: '',
       will: '',
       taxRefund: '',
+      agent: '' // campo para el agente
     },
-    client2: null, // Se crea cuando se agrega Client 2
+    client2: null,
+    kids: []
   },
   insurableNeeds: {
     client1: {
@@ -25,6 +27,7 @@ const initialState = {
       income: 0,
       education: 0,
       subtractInsurances: 0,
+      mortgage: 0,
     },
     client2: null,
   },
@@ -66,7 +69,9 @@ const initialState = {
 export const FormProvider = ({ children }) => {
   const [formData, setFormData] = useState(() => {
     const storedData = localStorage.getItem('formData');
-    return storedData ? JSON.parse(storedData) : initialState;
+    let parsedData = storedData ? JSON.parse(storedData) : initialState;
+    // ¡No forzamos el agente a cadena vacía!
+    return parsedData;
   });
 
   useEffect(() => {
