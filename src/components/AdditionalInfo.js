@@ -24,6 +24,10 @@ const AdditionalInfo = () => {
       await saveClientData(updatedFormData);
       setSaveMessage("Se ha guardado su formulario exitosamente en Firestore.");
       setOpenModal(true);
+      // Si estamos en modo edición, limpiamos la bandera después de la actualización
+      if (updatedFormData.editingClientId) {
+        setFormData(prev => ({ ...prev, isEdit: false, editingClientId: "" }));
+      }
     } catch (error) {
       console.error("Error al guardar el formulario:", error);
       setSaveMessage("Error al guardar el formulario en Firestore.");
@@ -91,7 +95,7 @@ const AdditionalInfo = () => {
             <AutoSave save={handleAutoSave} />
             <div style={{ marginTop: '20px' }}>
               <Button variant="contained" color="primary" type="submit">
-                Save Form
+                {formData.isEdit ? "Update Form" : "Save Form"}
               </Button>
               <Button variant="outlined" color="secondary" onClick={handleExport} style={{ marginLeft: '10px' }}>
                 Export

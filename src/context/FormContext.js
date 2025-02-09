@@ -3,7 +3,7 @@ import React, { createContext, useState, useEffect } from 'react';
 
 export const FormContext = createContext();
 
-const initialState = {
+export const initialState = {
   personalInfo: {
     client1: {
       fullName: '',
@@ -64,14 +64,14 @@ const initialState = {
     recommendations: '',
     nextAppointment: '',
   },
+  isEdit: false,          // Modo edición (false al iniciar)
+  editingClientId: ""     // ID del cliente en edición (vacío al iniciar)
 };
 
 export const FormProvider = ({ children }) => {
   const [formData, setFormData] = useState(() => {
     const storedData = localStorage.getItem('formData');
-    let parsedData = storedData ? JSON.parse(storedData) : initialState;
-    // ¡No forzamos el agente a cadena vacía!
-    return parsedData;
+    return storedData ? JSON.parse(storedData) : initialState;
   });
 
   useEffect(() => {
