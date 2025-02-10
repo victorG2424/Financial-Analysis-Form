@@ -26,6 +26,23 @@ const formatDate = (dateInput) => {
   return `${month}/${day}/${year}`;
 };
 
+// Función para traer datos de la subcolección "relatedPeople" para un cliente
+const fetchRelatedPeople = async (clientId) => {
+  const relatedPeopleRef = collection(db, "clients", clientId, "relatedPeople");
+  const snapshot = await getDocs(relatedPeopleRef);
+  let client2Data = null;
+  let kidsData = [];
+  snapshot.forEach((docSnap) => {
+    const data = docSnap.data();
+    if (docSnap.id === "Cliente2") {
+      client2Data = data;
+    } else if (docSnap.id.startsWith("Kid")) {
+      kidsData.push(data);
+    }
+  });
+  return { client2Data, kidsData };
+};
+
 const ViewClients = () => {
   const { setFormData } = useContext(FormContext);
   const [clients, setClients] = useState([]);
@@ -43,33 +60,33 @@ const ViewClients = () => {
     return () => unsubscribe();
   }, []);
 
-  // Función para traer datos de la subcolección "relatedPeople" para un cliente
-  const fetchRelatedPeople = async (clientId) => {
-    const relatedPeopleRef = collection(db, "clients", clientId, "relatedPeople");
-    const snapshot = await getDocs(relatedPeopleRef);
-    let client2Data = null;
-    let kidsData = [];
-    snapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-      if (docSnap.id === "Cliente2") {
-        client2Data = data;
-      } else if (docSnap.id.startsWith("Kid")) {
-        kidsData.push(data);
-      }
-    });
-    return { client2Data, kidsData };
-  };
-
   const handleEdit = async (client) => {
-    // Creamos el objeto base para Client 1 a partir del documento principal.
-    let newData = {
+    // Variables para Client 2 y kids
+    let client2Data = client.client2 || null;
+    let kidsData = client.kids || [];
+
+    // Si se indica que tiene Client2 y no está en el documento principal,
+    // se llama a fetchRelatedPeople para obtenerlo.
+    if (client.hasClient2 && !client.client2) {
+      try {
+        const { client2Data: fetchedClient2, kidsData: fetchedKids } = await fetchRelatedPeople(client.id);
+        client2Data = fetchedClient2;
+        // Si el documento principal no trae kids, usamos los traídos de la subcolección.
+        if (!client.kids || client.kids.length === 0) {
+          kidsData = fetchedKids;
+        }
+      } catch (error) {
+        console.error("Error fetching related people:", error);
+      }
+    }
+
+    const newData = {
       personalInfo: {
         client1: {
           fullName: client.fullName || '',
           email: client.email || '',
           phone: client.phone || '',
           state: client.state || '',
-          // Si el documento principal no tiene dob, se deja vacío.
           dob: client.dob || '',
           smoker: client.smoker || '',
           medicalCondition: client.medicalCondition || '',
@@ -78,23 +95,32 @@ const ViewClients = () => {
           taxRefund: client.taxRefund || '',
           agent: client.Agent || '',
         },
-        // Inicialmente se asignan null/empty; luego se actualizarán si existen en la subcolección.
-        client2: null,
-        kids: []
+        client2: client2Data,
+        kids: kidsData,
       },
       insurableNeeds: {
         client1: {
           debt: client.insurableData?.debt || 0,
           income: client.insurableData?.income || 0,
-          education: 0,
-          subtractInsurances: 0,
+          education: client.insurableData?.education || 0,
+          subtractInsurances: client.insurableData?.subtractInsurances || 0,
           mortgage: client.insurableData?.mortgage || 0,
         },
-        client2: null,
+        client2: client2Data && client2Data.insurableData
+          ? {
+              debt: client2Data.insurableData.debt,
+              income: client2Data.insurableData.income,
+              education: client2Data.insurableData.education,
+              subtractInsurances: client2Data.insurableData.subtractInsurances,
+              mortgage: client2Data.insurableData.mortgage || 0,
+            }
+          : { debt: 0, income: 0, education: 0, subtractInsurances: 0, mortgage: 0 },
       },
       retirementGoals: {
         client1: client.retirementgoals || { goals: '', retireAge: 0, retiredYears: 0, monthlyIncome: 0 },
-        client2: null,
+        client2: client2Data && client2Data.retirementgoals
+          ? client2Data.retirementgoals
+          : { goals: '', retireAge: 0, retiredYears: 0, monthlyIncome: 0 },
       },
       taxInformation: client.taxData || {
         taxNow: { checking: 0, savings: 0, other: 0 },
@@ -107,15 +133,6 @@ const ViewClients = () => {
       isEdit: true,
       editingClientId: client.id,
     };
-
-    // Traemos los datos de la subcolección "relatedPeople"
-    try {
-      const { client2Data, kidsData } = await fetchRelatedPeople(client.id);
-      newData.personalInfo.client2 = client2Data;
-      newData.personalInfo.kids = kidsData;
-    } catch (error) {
-      console.error("Error fetching related people:", error);
-    }
 
     setFormData(newData);
     navigate("/");
@@ -182,7 +199,7 @@ const ViewClients = () => {
                 <TableCell>{client.phone}</TableCell>
                 <TableCell>{client.Agent || '-'}</TableCell>
                 <TableCell>{client.hasClient2 ? 'Yes' : 'No'}</TableCell>
-                <TableCell>{client.hasKids ? 'Yes' : 'No'}</TableCell>
+                <TableCell>{client.kids && client.kids.length > 0 ? 'Yes' : 'No'}</TableCell>
                 <TableCell>
                   <Button variant="outlined" onClick={() => handleEdit(client)}>
                     Edit

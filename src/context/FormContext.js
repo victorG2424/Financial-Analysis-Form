@@ -27,7 +27,6 @@ export const initialState = {
       income: 0,
       education: 0,
       subtractInsurances: 0,
-      mortgage: 0,
     },
     client2: null,
   },

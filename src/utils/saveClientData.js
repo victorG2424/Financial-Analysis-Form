@@ -2,8 +2,7 @@
 import { collection, addDoc, setDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
 
-// Función para calcular el total necesario para el retiro.
-// Fórmula: totalNeededForRetirement = retiredYears * monthlyIncome * 12
+// Calcula el total necesario para el retiro
 const calculateTotalRetirement = (retirementData) => {
   const years = Number(retirementData.retiredYears) || 0;
   const monthlyIncome = Number(retirementData.monthlyIncome) || 0;
@@ -12,7 +11,7 @@ const calculateTotalRetirement = (retirementData) => {
 
 const saveClientData = async (formData) => {
   try {
-    // Datos que se guardarán en el documento principal (Client 1)
+    // Datos de Client 1 (se guardan en el documento principal)
     const client1Data = {
       fullName: formData.personalInfo.client1.fullName,
       email: formData.personalInfo.client1.email,
@@ -23,10 +22,12 @@ const saveClientData = async (formData) => {
       trust: formData.personalInfo.client1.trust,
       will: formData.personalInfo.client1.will,
       taxRefund: formData.personalInfo.client1.taxRefund,
-      Agent: formData.personalInfo.client1.agent, // Se guarda el valor del select Agent
+      Agent: formData.personalInfo.client1.agent,
       insurableData: {
         debt: formData.insurableNeeds.client1.debt,
         income: formData.insurableNeeds.client1.income,
+        education: formData.insurableNeeds.client1.education,
+        subtractInsurances: formData.insurableNeeds.client1.subtractInsurances,
         mortgage: formData.insurableNeeds.client1.mortgage || 0,
       },
       retirementgoals: {
@@ -35,29 +36,43 @@ const saveClientData = async (formData) => {
       },
       taxData: formData.taxInformation,
       AdditionalInfo: formData.additionalInfo,
-      savedAt: new Date(), // Se guarda la fecha y hora de guardado (hora local)
+      savedAt: new Date(),
       hasClient2: formData.personalInfo.client2 ? true : false,
       hasKids: formData.personalInfo.kids && formData.personalInfo.kids.length > 0,
     };
 
     if (formData.editingClientId) {
-      // Modo edición: actualizar el documento principal.
+      // Modo edición
       const clientDocRef = doc(db, "clients", formData.editingClientId);
       await updateDoc(clientDocRef, client1Data);
       console.log("Client 1 updated with ID:", formData.editingClientId);
-      
-      // Ahora actualizamos la subcolección "relatedPeople"
+
       const relatedPeopleCollection = collection(clientDocRef, "relatedPeople");
-      
+
       // Actualizar o crear Client 2 si existe.
       if (formData.personalInfo.client2) {
         await setDoc(
           doc(relatedPeopleCollection, "Cliente2"),
-          formData.personalInfo.client2,
+          {
+            fullName: formData.personalInfo.client2.fullName,
+            email: formData.personalInfo.client2.email,
+            phone: formData.personalInfo.client2.phone,
+            smoker: formData.personalInfo.client2.smoker,
+            medicalCondition: formData.personalInfo.client2.medicalCondition,
+            trust: formData.personalInfo.client2.trust,
+            will: formData.personalInfo.client2.will,
+            taxRefund: formData.personalInfo.client2.taxRefund,
+            insurableData: {
+              debt: formData.insurableNeeds.client2.debt,
+              income: formData.insurableNeeds.client2.income,
+              education: formData.insurableNeeds.client2.education,
+              subtractInsurances: formData.insurableNeeds.client2.subtractInsurances,
+              mortgage: formData.insurableNeeds.client2.mortgage || 0,
+            },
+            retirementgoals: formData.retirementGoals.client2, // Aquí se guarda la info de Retirement Goals de Client 2
+          },
           { merge: true }
         );
-      } else {
-        // Opcional: Podrías eliminar el documento "Cliente2" si no existe (no se muestra en el formulario).
       }
       
       // Actualizar o crear los documentos para cada Kid.
@@ -69,15 +84,12 @@ const saveClientData = async (formData) => {
             { merge: true }
           );
         });
-      } else {
-        // Opcional: Eliminar documentos existentes si se removieron los kids.
       }
     } else {
-      // Modo creación: crear un nuevo documento principal.
+      // Modo creación
       const clientDocRef = await addDoc(collection(db, "clients"), client1Data);
       console.log("Client 1 created with ID:", clientDocRef.id);
-      
-      // Crear la subcolección "relatedPeople"
+
       const relatedPeopleCollection = collection(clientDocRef, "relatedPeople");
       if (formData.personalInfo.client2) {
         const client2Data = {
@@ -92,12 +104,11 @@ const saveClientData = async (formData) => {
           insurableData: {
             debt: formData.insurableNeeds.client2.debt,
             income: formData.insurableNeeds.client2.income,
+            education: formData.insurableNeeds.client2.education,
+            subtractInsurances: formData.insurableNeeds.client2.subtractInsurances,
             mortgage: formData.insurableNeeds.client2.mortgage || 0,
           },
-          retirementgoals: {
-            ...formData.retirementGoals.client2,
-            totalNeededForRetirement: calculateTotalRetirement(formData.retirementGoals.client2),
-          },
+          retirementgoals: formData.retirementGoals.client2, // Guarda la info de Retirement Goals de Client 2
           savedAt: new Date(),
         };
         await setDoc(doc(relatedPeopleCollection, "Cliente2"), client2Data);

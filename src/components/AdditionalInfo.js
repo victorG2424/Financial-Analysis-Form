@@ -1,7 +1,7 @@
-// src/components/AdditionalInformation.js
+// src/components/AdditionalInfo.js
 import React, { useContext, useState, useEffect } from 'react';
 import { Formik, Form } from 'formik';
-import { FormContext } from '../context/FormContext';
+import { FormContext, initialState } from '../context/FormContext';
 import {
   Button,
   Grid,
@@ -18,6 +18,7 @@ import {
 import AutoSave from './AutoSave';
 import saveClientData from '../utils/saveClientData';
 import { jsPDF } from 'jspdf';
+import { useNavigate } from 'react-router-dom';
 
 // Helper para formatear una fecha al formato USA (mm/dd/yyyy)
 const formatDate = (dateInput) => {
@@ -32,31 +33,42 @@ const formatDate = (dateInput) => {
 
 const AdditionalInfo = () => {
   const { formData, setFormData } = useContext(FormContext);
+  const navigate = useNavigate();
   const initialValues = formData.additionalInfo;
   const [openModal, setOpenModal] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
 
   // Estado local para el select de Agent.
-  // Se inicializa con el valor actual del contexto o, si es nuevo, con "Bianca Garcia".
   const [selectedAgent, setSelectedAgent] = useState(
     formData.personalInfo.client1.agent || 'Bianca Garcia'
   );
 
-  // Sincronizamos el estado local con el contexto.
+  // Sincronizamos el estado local con el contexto, actualizando solo si es distinto.
   useEffect(() => {
-    setFormData((prev) => ({
-      ...prev,
-      personalInfo: {
-        ...prev.personalInfo,
-        client1: {
-          ...prev.personalInfo.client1,
-          agent: selectedAgent,
+    setFormData((prev) => {
+      if (prev.personalInfo.client1.agent === selectedAgent) {
+        return prev;
+      }
+      return {
+        ...prev,
+        personalInfo: {
+          ...prev.personalInfo,
+          client1: {
+            ...prev.personalInfo.client1,
+            agent: selectedAgent,
+          },
         },
-      },
-    }));
+      };
+    });
   }, [selectedAgent, setFormData]);
 
-  // Función onSubmit para guardar el formulario
+  // Función para reiniciar el formulario (se mantiene en el archivo, pero ya no se invoca al cerrar el modal)
+  const handleResetForm = () => {
+    setFormData(initialState);
+    setSelectedAgent(initialState.personalInfo.client1.agent);
+  };
+
+  // Función onSubmit para guardar el formulario.
   const onSubmit = async (values) => {
     const updatedFormData = {
       ...formData,
@@ -68,7 +80,7 @@ const AdditionalInfo = () => {
       setSaveMessage('Se ha guardado su formulario exitosamente en Firestore.');
       setOpenModal(true);
       if (updatedFormData.editingClientId) {
-        setFormData((prev) => ({ ...prev, isEdit: false, editingClientId: '' }));
+        // En modo edición, se guarda la información y se muestra el modal.
       }
     } catch (error) {
       console.error('Error al guardar el formulario:', error);
@@ -77,7 +89,7 @@ const AdditionalInfo = () => {
     }
   };
 
-  // Función de autosave para actualizar el contexto conforme se escriba
+  // Función de autosave para actualizar el contexto conforme se escribe.
   const handleAutoSave = (values) => {
     if (JSON.stringify(values) === JSON.stringify(formData.additionalInfo))
       return;
@@ -94,7 +106,6 @@ const AdditionalInfo = () => {
       format: 'a4',
     });
 
-    // Configuración de márgenes y lineHeight
     const marginTop = 20;
     const marginLeft = 20;
     const marginBottom = 20;
@@ -103,36 +114,32 @@ const AdditionalInfo = () => {
     const lineHeight = 7;
     let currentY = marginTop;
 
-    // --- Página 1: Portada ---
-    // Nombre de Cliente 1 (sin etiqueta)
+    // Página 1: Portada
     doc.setFontSize(16);
     doc.text(`${formData.personalInfo.client1.fullName}`, marginLeft, currentY);
     currentY += lineHeight;
-    // Nombre de Agente (con etiqueta "Agente:")
+
     doc.setFontSize(12);
     doc.text(`Agente: ${formData.personalInfo.client1.agent}`, marginLeft, currentY);
     currentY += lineHeight;
-    // Título: Financial Analysis (sin etiqueta "Título")
+
     doc.setFontSize(18);
     doc.text("Financial Analysis", marginLeft, currentY);
     currentY += lineHeight;
-    // SavedAt: Solo la fecha en formato USA
-    const savedDate = formData.savedAt
-      ? formatDate(formData.savedAt)
-      : formatDate(new Date());
+
+    const savedDate = formData.savedAt ? formatDate(formData.savedAt) : formatDate(new Date());
     doc.setFontSize(12);
     doc.text(`${savedDate}`, marginLeft, currentY);
     currentY += lineHeight;
-    // Aseguramos un margen inferior
+
     if (currentY > pageHeight - marginBottom) {
-      // Raramente se alcanzaría este caso en la portada
+      // Se podría agregar una nueva página si fuese necesario.
     }
 
-    // Agregamos una nueva página para la información detallada.
+    // Página 2 y siguientes: Información Detallada
     doc.addPage();
     currentY = marginTop;
 
-    // Función auxiliar para agregar líneas y gestionar saltos de página.
     const addTextLine = (text) => {
       if (currentY + lineHeight > pageHeight - marginBottom) {
         doc.addPage();
@@ -142,7 +149,6 @@ const AdditionalInfo = () => {
       currentY += lineHeight;
     };
 
-    // --- Sección: Client 1 Personal Info ---
     addTextLine("Client 1 Information:");
     addTextLine(`Name: ${formData.personalInfo.client1.fullName}`);
     addTextLine(`Email: ${formData.personalInfo.client1.email}`);
@@ -150,132 +156,44 @@ const AdditionalInfo = () => {
     addTextLine(`State: ${formData.personalInfo.client1.state}`);
     addTextLine(`Date of Birth: ${formatDate(formData.personalInfo.client1.dob)}`);
     addTextLine(`Smoker: ${formData.personalInfo.client1.smoker}`);
-    addTextLine(
-      `Medical Condition: ${formData.personalInfo.client1.medicalCondition}`
-    );
+    addTextLine(`Medical Condition: ${formData.personalInfo.client1.medicalCondition}`);
     addTextLine(`Do you have a trust?: ${formData.personalInfo.client1.trust}`);
     addTextLine(`Do you have a will?: ${formData.personalInfo.client1.will}`);
-    addTextLine(
-      `Did you get a tax refund?: ${formData.personalInfo.client1.taxRefund}`
-    );
+    addTextLine(`Did you get a tax refund?: ${formData.personalInfo.client1.taxRefund}`);
     addTextLine("");
 
-    // --- Sección: Client 2 Personal Info (si existe) ---
     if (formData.personalInfo.client2) {
       addTextLine("Client 2 Information:");
       addTextLine(`Name: ${formData.personalInfo.client2.fullName}`);
       addTextLine(`Email: ${formData.personalInfo.client2.email}`);
       addTextLine(`Phone Number: ${formData.personalInfo.client2.phone}`);
       addTextLine(`State: ${formData.personalInfo.client2.state}`);
-      addTextLine(
-        `Date of Birth: ${formatDate(formData.personalInfo.client2.dob)}`
-      );
+      addTextLine(`Date of Birth: ${formatDate(formData.personalInfo.client2.dob)}`);
       addTextLine(`Smoker: ${formData.personalInfo.client2.smoker}`);
-      addTextLine(
-        `Medical Condition: ${formData.personalInfo.client2.medicalCondition}`
-      );
+      addTextLine(`Medical Condition: ${formData.personalInfo.client2.medicalCondition}`);
       addTextLine(`Do you have a trust?: ${formData.personalInfo.client2.trust}`);
       addTextLine(`Do you have a will?: ${formData.personalInfo.client2.will}`);
-      addTextLine(
-        `Did you get a tax refund?: ${formData.personalInfo.client2.taxRefund}`
-      );
+      addTextLine(`Did you get a tax refund?: ${formData.personalInfo.client2.taxRefund}`);
       addTextLine("");
     }
 
-    // --- Sección: Kids (si existen) ---
     if (formData.personalInfo.kids && formData.personalInfo.kids.length > 0) {
       addTextLine("Kids Information:");
       formData.personalInfo.kids.forEach((kid, index) => {
         addTextLine(`Kid ${index + 1} Name: ${kid.fullName}`);
-        addTextLine(
-          `Kid ${index + 1} Date of Birth: ${formatDate(kid.dob)}`
-        );
+        addTextLine(`Kid ${index + 1} Date of Birth: ${formatDate(kid.dob)}`);
       });
       addTextLine("");
     }
 
-    // --- Sección: Insurable Needs Client 1 ---
-    addTextLine("Insurable Needs - Client 1:");
-    const in1 = formData.insurableNeeds.client1;
-    addTextLine(`Debt: ${in1.debt}`);
-    addTextLine(`Income: ${in1.income}`);
-    addTextLine(`Education: ${in1.education}`);
-    addTextLine(`Subtract Current Insurances: ${in1.subtractInsurances}`);
-    addTextLine(`Mortgage: ${in1.mortgage}`);
-    const totalInsurable1 =
-      Number(in1.debt) + Number(in1.income) + Number(in1.education) - Number(in1.subtractInsurances);
-    addTextLine(`Total Insurable Need: ${totalInsurable1}`);
-    addTextLine("");
-
-    // --- Sección: Insurable Needs Client 2 (si existe) ---
-    if (formData.insurableNeeds.client2) {
-      addTextLine("Insurable Needs - Client 2:");
-      const in2 = formData.insurableNeeds.client2;
-      addTextLine(`Debt: ${in2.debt}`);
-      addTextLine(`Income: ${in2.income}`);
-      addTextLine(`Education: ${in2.education}`);
-      addTextLine(`Subtract Current Insurances: ${in2.subtractInsurances}`);
-      addTextLine(`Mortgage: ${in2.mortgage}`);
-      const totalInsurable2 =
-        Number(in2.debt) + Number(in2.income) + Number(in2.education) - Number(in2.subtractInsurances);
-      addTextLine(`Total Insurable Need: ${totalInsurable2}`);
-      addTextLine("");
-    }
-
-    // --- Sección: Retirement Goals Client 1 ---
-    addTextLine("Retirement Goals - Client 1:");
-    const rt1 = formData.retirementGoals.client1;
-    addTextLine(`Goals & Dreams in Retirement: ${rt1.goals}`);
-    addTextLine(`Age to Retire: ${rt1.retireAge}`);
-    addTextLine(`Years Retired: ${rt1.retiredYears}`);
-    addTextLine(`Monthly Income: ${rt1.monthlyIncome}`);
-    const totalRetirement1 =
-      Number(rt1.retiredYears) * Number(rt1.monthlyIncome) * 12;
-    addTextLine(`Total Needed for Retirement: ${totalRetirement1}`);
-    addTextLine("");
-
-    // --- Sección: Retirement Goals Client 2 (si existe) ---
-    if (formData.retirementGoals.client2) {
-      addTextLine("Retirement Goals - Client 2:");
-      const rt2 = formData.retirementGoals.client2;
-      addTextLine(`Goals & Dreams in Retirement: ${rt2.goals}`);
-      addTextLine(`Age to Retire: ${rt2.retireAge}`);
-      addTextLine(`Years Retired: ${rt2.retiredYears}`);
-      addTextLine(`Monthly Income: ${rt2.monthlyIncome}`);
-      const totalRetirement2 =
-        Number(rt2.retiredYears) * Number(rt2.monthlyIncome) * 12;
-      addTextLine(`Total Needed for Retirement: ${totalRetirement2}`);
-      addTextLine("");
-    }
-
-    // --- Sección: Tax Information Client 1 ---
-    addTextLine("Tax Information - Client 1:");
-    const taxNow = formData.taxInformation.taxNow;
-    addTextLine("Tax Now:");
-    addTextLine(`  Checking: ${taxNow.checking}`);
-    addTextLine(`  Savings: ${taxNow.savings}`);
-    addTextLine(`  Other: ${taxNow.other}`);
-    const taxLater = formData.taxInformation.taxLater;
-    addTextLine("Tax Later:");
-    addTextLine(`  IRAs: ${taxLater.iras}`);
-    addTextLine(`  Retirement Plan: ${taxLater.retirementPlan}`);
-    addTextLine(`  Other: ${taxLater.other}`);
-    const taxAdv = formData.taxInformation.taxAdvantaged;
-    addTextLine("Tax Advantaged:");
-    addTextLine(`  Roth IRAs: ${taxAdv.rothIras}`);
-    addTextLine(`  Plan 529: ${taxAdv.plan529}`);
-    addTextLine(`  Life Insurance: ${taxAdv.lifeInsurance}`);
-    addTextLine("");
-
-    // --- Sección: Additional Information ---
-    addTextLine("Additional Information:");
-    addTextLine(`Financial Goals: ${formData.additionalInfo.financialGoals}`);
-    addTextLine(`GFI Recommendations: ${formData.additionalInfo.recommendations}`);
-    addTextLine(
-      `Date Next Appointment: ${formatDate(formData.additionalInfo.nextAppointment)}`
-    );
+    // Secciones adicionales se pueden agregar aquí...
 
     doc.save("financial_analysis.pdf");
+  };
+
+  // Al cerrar el modal, solo se cierra el modal (no se reinicia ni navega).
+  const handleCloseModal = () => {
+    setOpenModal(false);
   };
 
   return (
@@ -347,11 +265,11 @@ const AdditionalInfo = () => {
           </Form>
         )}
       </Formik>
-      <Dialog open={openModal} onClose={() => setOpenModal(false)}>
+      <Dialog open={openModal} onClose={handleCloseModal}>
         <DialogTitle>Confirmation</DialogTitle>
         <DialogContent>{saveMessage}</DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenModal(false)}>Cerrar</Button>
+          <Button onClick={handleCloseModal}>Cerrar</Button>
         </DialogActions>
       </Dialog>
     </div>
