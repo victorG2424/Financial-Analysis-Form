@@ -15,7 +15,7 @@ const PersonalInfo = () => {
     email: '',
     phone: '',
     state: '',
-    dob: '', // Campo de Date of Birth
+    dob: '',
     smoker: '',
     medicalCondition: '',
     trust: '',
@@ -42,8 +42,8 @@ const PersonalInfo = () => {
             fullName: '',
             email: '',
             phone: '',
-            state: '',
-            dob: '', // Inicializamos el campo dob para Client 2
+            state: '', // Inicializamos state
+            dob: '',
             smoker: '',
             medicalCondition: '',
             trust: '',
@@ -69,7 +69,7 @@ const PersonalInfo = () => {
             retiredYears: 0,
             monthlyIncome: 0,
           },
-        },
+        }
       }));
     }
   };
@@ -94,7 +94,6 @@ const PersonalInfo = () => {
 
   const handleAutoSaveClient1 = (values) => {
     if (JSON.stringify(values) === JSON.stringify(formData.personalInfo.client1)) return;
-
     setFormData(prev => ({
       ...prev,
       personalInfo: {
@@ -106,7 +105,6 @@ const PersonalInfo = () => {
 
   const handleAutoSaveClient2 = (values) => {
     if (JSON.stringify(values) === JSON.stringify(formData.personalInfo.client2)) return;
-
     setFormData(prev => ({
       ...prev,
       personalInfo: {
@@ -128,6 +126,7 @@ const PersonalInfo = () => {
         {({ values, handleChange, errors, touched }) => (
           <Form>
             <Grid container spacing={2}>
+              {/* Campos del formulario */}
               <Grid item xs={6}>
                 <TextField
                   fullWidth

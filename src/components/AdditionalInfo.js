@@ -14,10 +14,10 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  CircularProgress,
 } from '@mui/material';
 import AutoSave from './AutoSave';
 import saveClientData from '../utils/saveClientData';
-import { jsPDF } from 'jspdf';
 import { useNavigate } from 'react-router-dom';
 
 // Helper para formatear una fecha al formato USA (mm/dd/yyyy)
@@ -37,6 +37,7 @@ const AdditionalInfo = () => {
   const initialValues = formData.additionalInfo;
   const [openModal, setOpenModal] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // Estado local para el select de Agent.
   const [selectedAgent, setSelectedAgent] = useState(
@@ -46,9 +47,7 @@ const AdditionalInfo = () => {
   // Sincronizamos el estado local con el contexto, actualizando solo si es distinto.
   useEffect(() => {
     setFormData((prev) => {
-      if (prev.personalInfo.client1.agent === selectedAgent) {
-        return prev;
-      }
+      if (prev.personalInfo.client1.agent === selectedAgent) return prev;
       return {
         ...prev,
         personalInfo: {
@@ -62,45 +61,37 @@ const AdditionalInfo = () => {
     });
   }, [selectedAgent, setFormData]);
 
-  // Función para reiniciar el formulario (se mantiene en el archivo, pero ya no se invoca al cerrar el modal)
-  const handleResetForm = () => {
-    setFormData(initialState);
-    setSelectedAgent(initialState.personalInfo.client1.agent);
-  };
-
-  // Función onSubmit para guardar el formulario.
+  // Función onSubmit para guardar la información
   const onSubmit = async (values) => {
     const updatedFormData = {
       ...formData,
       additionalInfo: values,
     };
     setFormData(updatedFormData);
+    setLoading(true);
     try {
       await saveClientData(updatedFormData);
       setSaveMessage('Se ha guardado su formulario exitosamente en Firestore.');
       setOpenModal(true);
-      if (updatedFormData.editingClientId) {
-        // En modo edición, se guarda la información y se muestra el modal.
-      }
     } catch (error) {
       console.error('Error al guardar el formulario:', error);
       setSaveMessage('Error al guardar el formulario en Firestore.');
       setOpenModal(true);
+    } finally {
+      setLoading(false);
     }
   };
 
   // Función de autosave para actualizar el contexto conforme se escribe.
   const handleAutoSave = (values) => {
-    if (JSON.stringify(values) === JSON.stringify(formData.additionalInfo))
-      return;
+    if (JSON.stringify(values) === JSON.stringify(formData.additionalInfo)) return;
     setFormData((prev) => ({
       ...prev,
       additionalInfo: values,
     }));
   };
 
-
-  // Al cerrar el modal, solo se cierra el modal (no se reinicia ni navega).
+  // Al cerrar el modal, solo se cierra el modal.
   const handleCloseModal = () => {
     setOpenModal(false);
   };
@@ -164,10 +155,18 @@ const AdditionalInfo = () => {
             </Grid>
             <AutoSave save={handleAutoSave} />
             <div style={{ marginTop: '20px' }}>
-              <Button variant="contained" color="primary" type="submit">
-                {formData.isEdit ? "Update Form" : "Save Form"}
+              <Button
+                variant="contained"
+                color="primary"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? (
+                  <CircularProgress size={24} color="inherit" />
+                ) : (
+                  formData.isEdit ? "Update Form" : "Save Form"
+                )}
               </Button>
-
             </div>
           </Form>
         )}

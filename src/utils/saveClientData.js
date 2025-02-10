@@ -11,13 +11,13 @@ const calculateTotalRetirement = (retirementData) => {
 
 const saveClientData = async (formData) => {
   try {
-    // Datos de Client 1 que se guardarán en el documento principal
+    // Datos de Client 1 (se guardan en el documento principal)
     const client1Data = {
       fullName: formData.personalInfo.client1.fullName,
       email: formData.personalInfo.client1.email,
       phone: formData.personalInfo.client1.phone,
-      state: formData.personalInfo.client1.state,
-      dob: formData.personalInfo.client1.dob, // Incluimos Date of Birth
+      state: formData.personalInfo.client1.state, // Se envía state de Client 1
+      dob: formData.personalInfo.client1.dob,
       smoker: formData.personalInfo.client1.smoker,
       medicalCondition: formData.personalInfo.client1.medicalCondition,
       trust: formData.personalInfo.client1.trust,
@@ -43,7 +43,7 @@ const saveClientData = async (formData) => {
     };
 
     if (formData.editingClientId) {
-      // Modo edición: actualizar documento existente
+      // Modo edición: actualizar el documento principal.
       const clientDocRef = doc(db, "clients", formData.editingClientId);
       await updateDoc(clientDocRef, client1Data);
       console.log("Client 1 updated with ID:", formData.editingClientId);
@@ -58,7 +58,8 @@ const saveClientData = async (formData) => {
             fullName: formData.personalInfo.client2.fullName,
             email: formData.personalInfo.client2.email,
             phone: formData.personalInfo.client2.phone,
-            dob: formData.personalInfo.client2.dob, // Incluimos dob de Client 2
+            state: formData.personalInfo.client2.state, // ¡Agregado! Campo state para Client 2
+            dob: formData.personalInfo.client2.dob,
             smoker: formData.personalInfo.client2.smoker,
             medicalCondition: formData.personalInfo.client2.medicalCondition,
             trust: formData.personalInfo.client2.trust,
@@ -71,13 +72,13 @@ const saveClientData = async (formData) => {
               subtractInsurances: formData.insurableNeeds.client2.subtractInsurances,
               mortgage: formData.insurableNeeds.client2.mortgage || 0,
             },
-            retirementgoals: formData.retirementGoals.client2,
+            retirementgoals: formData.retirementGoals.client2, // Información de Retirement Goals de Client 2
           },
           { merge: true }
         );
       }
 
-      // Actualizar o crear documentos para cada Kid.
+      // Actualizar o crear los documentos para cada Kid.
       if (formData.personalInfo.kids && formData.personalInfo.kids.length > 0) {
         formData.personalInfo.kids.forEach(async (kid, index) => {
           await setDoc(
@@ -88,7 +89,7 @@ const saveClientData = async (formData) => {
         });
       }
     } else {
-      // Modo creación: crear un nuevo documento
+      // Modo creación: crear un nuevo documento principal.
       const clientDocRef = await addDoc(collection(db, "clients"), client1Data);
       console.log("Client 1 created with ID:", clientDocRef.id);
 
@@ -98,7 +99,8 @@ const saveClientData = async (formData) => {
           fullName: formData.personalInfo.client2.fullName,
           email: formData.personalInfo.client2.email,
           phone: formData.personalInfo.client2.phone,
-          dob: formData.personalInfo.client2.dob, // Incluimos dob para Client 2
+          state: formData.personalInfo.client2.state, // ¡Agregado! Campo state para Client 2
+          dob: formData.personalInfo.client2.dob,
           smoker: formData.personalInfo.client2.smoker,
           medicalCondition: formData.personalInfo.client2.medicalCondition,
           trust: formData.personalInfo.client2.trust,
@@ -111,7 +113,7 @@ const saveClientData = async (formData) => {
             subtractInsurances: formData.insurableNeeds.client2.subtractInsurances,
             mortgage: formData.insurableNeeds.client2.mortgage || 0,
           },
-          retirementgoals: formData.retirementGoals.client2,
+          retirementgoals: formData.retirementGoals.client2, // Guarda la info de Retirement Goals de Client 2
           savedAt: new Date(),
         };
         await setDoc(doc(relatedPeopleCollection, "Cliente2"), client2Data);
