@@ -44,7 +44,7 @@ const AdditionalInfo = () => {
     formData.personalInfo.client1.agent || 'Bianca Garcia'
   );
 
-  // Sincronizamos el estado local con el contexto, actualizando solo si es distinto.
+  // Sincronizamos el estado local con el contexto, actualizando el campo agent en Client 1.
   useEffect(() => {
     setFormData((prev) => {
       if (prev.personalInfo.client1.agent === selectedAgent) return prev;
@@ -61,7 +61,7 @@ const AdditionalInfo = () => {
     });
   }, [selectedAgent, setFormData]);
 
-  // Función onSubmit para guardar la información
+  // Función onSubmit para guardar la información.
   const onSubmit = async (values) => {
     const updatedFormData = {
       ...formData,
@@ -84,16 +84,18 @@ const AdditionalInfo = () => {
 
   // Función de autosave para actualizar el contexto conforme se escribe.
   const handleAutoSave = (values) => {
-    if (JSON.stringify(values) === JSON.stringify(formData.additionalInfo)) return;
+    if (JSON.stringify(values) === JSON.stringify(formData.additionalInfo))
+      return;
     setFormData((prev) => ({
       ...prev,
       additionalInfo: values,
     }));
   };
 
-  // Al cerrar el modal, solo se cierra el modal.
+  // Al cerrar el modal, se cierra y se redirige a la vista de ViewClients.
   const handleCloseModal = () => {
     setOpenModal(false);
+    navigate("/clients");
   };
 
   return (
