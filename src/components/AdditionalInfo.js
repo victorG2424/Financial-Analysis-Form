@@ -1,8 +1,20 @@
 // src/components/AdditionalInformation.js
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Formik, Form } from 'formik';
 import { FormContext } from '../context/FormContext';
-import { Button, Grid, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { 
+  Button, 
+  Grid, 
+  TextField, 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogActions,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem 
+} from '@mui/material';
 import AutoSave from './AutoSave';
 import saveClientData from '../utils/saveClientData';
 
@@ -11,6 +23,25 @@ const AdditionalInfo = () => {
   const initialValues = formData.additionalInfo;
   const [openModal, setOpenModal] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+
+  // Estado local para el select del agente, con valor por defecto "Bianca Garcia" si aún no se ha elegido.
+  const [selectedAgent, setSelectedAgent] = useState(
+    formData.personalInfo.client1.agent || "Bianca Garcia"
+  );
+
+  // Sincronizar el valor local con el contexto
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      personalInfo: {
+        ...prev.personalInfo,
+        client1: {
+          ...prev.personalInfo.client1,
+          agent: selectedAgent,
+        },
+      },
+    }));
+  }, [selectedAgent, setFormData]);
 
   const onSubmit = async (values) => {
     const updatedFormData = { 
@@ -24,7 +55,7 @@ const AdditionalInfo = () => {
       await saveClientData(updatedFormData);
       setSaveMessage("Se ha guardado su formulario exitosamente en Firestore.");
       setOpenModal(true);
-      // Si estamos en modo edición, limpiamos la bandera después de la actualización
+      // Si estamos en modo edición, reiniciamos las banderas
       if (updatedFormData.editingClientId) {
         setFormData(prev => ({ ...prev, isEdit: false, editingClientId: "" }));
       }
@@ -58,6 +89,7 @@ const AdditionalInfo = () => {
         {({ values, handleChange }) => (
           <Form>
             <Grid container spacing={2}>
+              {/* Financial Goals */}
               <Grid item xs={12}>
                 <TextField
                   fullWidth
@@ -69,6 +101,7 @@ const AdditionalInfo = () => {
                   onChange={handleChange}
                 />
               </Grid>
+              {/* GFI Recommendations */}
               <Grid item xs={12}>
                 <TextField
                   fullWidth
@@ -80,6 +113,7 @@ const AdditionalInfo = () => {
                   onChange={handleChange}
                 />
               </Grid>
+              {/* Date next appointment */}
               <Grid item xs={12}>
                 <TextField
                   fullWidth
@@ -90,6 +124,22 @@ const AdditionalInfo = () => {
                   value={values.nextAppointment}
                   onChange={handleChange}
                 />
+              </Grid>
+              {/* Nuevo select para Agent */}
+              <Grid item xs={12}>
+                <FormControl fullWidth required>
+                  <InputLabel id="agent-select-label">Agente</InputLabel>
+                  <Select
+                    labelId="agent-select-label"
+                    id="agent-select"
+                    value={selectedAgent}
+                    label="Agente"
+                    onChange={(e) => setSelectedAgent(e.target.value)}
+                  >
+                    <MenuItem value="Bianca Garcia">Bianca Garcia</MenuItem>
+                    <MenuItem value="Francisco Velazquez">Francisco Velazquez</MenuItem>
+                  </Select>
+                </FormControl>
               </Grid>
             </Grid>
             <AutoSave save={handleAutoSave} />

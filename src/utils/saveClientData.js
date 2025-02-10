@@ -21,7 +21,7 @@ const saveClientData = async (formData) => {
       trust: formData.personalInfo.client1.trust,
       will: formData.personalInfo.client1.will,
       taxRefund: formData.personalInfo.client1.taxRefund,
-      Agent: formData.personalInfo.client1.agent, // Guardamos el agente seleccionado
+      Agent: formData.personalInfo.client1.agent, // Se guarda el agente seleccionado
       insurableData: {
         debt: formData.insurableNeeds.client1.debt,
         income: formData.insurableNeeds.client1.income,
@@ -33,18 +33,16 @@ const saveClientData = async (formData) => {
       },
       taxData: formData.taxInformation,
       AdditionalInfo: formData.additionalInfo,
-      savedAt: new Date(), // Fecha y hora de guardado (hora local)
+      savedAt: new Date(), // Hora local
       hasClient2: formData.personalInfo.client2 ? true : false,
       hasKids: formData.personalInfo.kids && formData.personalInfo.kids.length > 0,
     };
 
     if (formData.editingClientId) {
-      // Modo edición: actualizar el documento existente
       const clientDocRef = doc(db, "clients", formData.editingClientId);
       await updateDoc(clientDocRef, client1Data);
       console.log("Client 1 updated with ID:", formData.editingClientId);
     } else {
-      // Modo nuevo: crear un documento nuevo
       const clientDocRef = await addDoc(collection(db, "clients"), client1Data);
       console.log("Client 1 created with ID:", clientDocRef.id);
 

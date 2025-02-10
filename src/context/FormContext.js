@@ -16,7 +16,7 @@ export const initialState = {
       trust: '',
       will: '',
       taxRefund: '',
-      agent: '' // campo para el agente
+      agent: '' // Inicialmente vacío; se actualizará en el formulario
     },
     client2: null,
     kids: []
