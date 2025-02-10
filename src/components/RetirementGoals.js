@@ -115,14 +115,10 @@ const RetirementGoals = () => {
                   </Grid>
                 </Grid>
                 <AutoSave save={handleAutoSaveClient1} />
-                <Button variant="contained" color="primary" type="submit" style={{ marginTop: '10px' }}>
-                  Save Client 1
-                </Button>
               </Form>
             )}
           </Formik>
         </Grid>
-
         {formData.personalInfo.client2 && (
           <Grid item xs={6}>
             <h3>Client 2</h3>

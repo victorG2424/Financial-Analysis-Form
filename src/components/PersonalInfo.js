@@ -268,9 +268,7 @@ const PersonalInfo = () => {
                         </Grid>
                         <AutoSave save={handleAutoSaveClient1} />
                         <div style={{ marginTop: '20px' }}>
-                            <Button variant="contained" color="primary" type="submit">
-                                Next Form
-                            </Button>
+
                             {!formData.personalInfo.client2 && (
                                 <Button variant="outlined" color="secondary" onClick={handleAddClient2} style={{ marginLeft: '10px' }}>
                                     Add Another Client

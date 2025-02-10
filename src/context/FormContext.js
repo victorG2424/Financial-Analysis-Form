@@ -16,10 +16,10 @@ export const initialState = {
       trust: '',
       will: '',
       taxRefund: '',
-      agent: '' // Inicialmente vacío; se actualizará en el formulario
+      agent: '' // Se asignará en el formulario de Additional Information
     },
     client2: null,
-    kids: []
+    kids: [] // Arreglo de kids; se actualizará mediante el modal "Add Kids"
   },
   insurableNeeds: {
     client1: {
@@ -64,8 +64,8 @@ export const initialState = {
     recommendations: '',
     nextAppointment: '',
   },
-  isEdit: false,          // Modo edición (false al iniciar)
-  editingClientId: ""     // ID del cliente en edición (vacío al iniciar)
+  isEdit: false,
+  editingClientId: ""
 };
 
 export const FormProvider = ({ children }) => {

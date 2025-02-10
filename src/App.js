@@ -5,9 +5,10 @@ import FormTabs from './components/Tabs';
 import KidsModal from './components/Modal';
 import ViewClients from './components/ViewClients';
 import { Container, Button } from '@mui/material';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 
-function App() {
+function AppContent() {
+  const location = useLocation();
   const [openKidsModal, setOpenKidsModal] = useState(false);
 
   const handleOpenKidsModal = () => {
@@ -19,24 +20,33 @@ function App() {
   };
 
   return (
-    <FormProvider>
-      <Router>
-        <Container maxWidth="md">
-          <h1>Financial Analysis Form</h1>
-          {/* Botón "Ver Clientes" para navegar a la tabla de clientes */}
+    <Container maxWidth="md">
+      <h1>Financial Analysis Form</h1>
+      {/* Condicionalmente se muestran los botones solo si no estamos en la vista de clientes */}
+      {location.pathname === "/" && (
+        <>
           <Button component={Link} to="/clients" variant="contained" color="primary" sx={{ mt: 2 }}>
             Ver Clientes
           </Button>
-          {/* Botón para abrir el modal de Kids */}
           <Button variant="outlined" color="secondary" onClick={handleOpenKidsModal} sx={{ mt: 2, ml: 2 }}>
             Add Kids
           </Button>
-          <Routes>
-            <Route path="/" element={<FormTabs />} />
-            <Route path="/clients" element={<ViewClients />} />
-          </Routes>
-          <KidsModal open={openKidsModal} handleClose={handleCloseKidsModal} />
-        </Container>
+        </>
+      )}
+      <Routes>
+        <Route path="/" element={<FormTabs />} />
+        <Route path="/clients" element={<ViewClients />} />
+      </Routes>
+      <KidsModal open={openKidsModal} handleClose={handleCloseKidsModal} />
+    </Container>
+  );
+}
+
+function App() {
+  return (
+    <FormProvider>
+      <Router>
+        <AppContent />
       </Router>
     </FormProvider>
   );

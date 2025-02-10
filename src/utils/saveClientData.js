@@ -2,7 +2,8 @@
 import { collection, addDoc, setDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
 
-// Calcula el total necesario para el retiro
+// Función para calcular el total necesario para el retiro.
+// Fórmula: totalNeededForRetirement = retiredYears * monthlyIncome * 12
 const calculateTotalRetirement = (retirementData) => {
   const years = Number(retirementData.retiredYears) || 0;
   const monthlyIncome = Number(retirementData.monthlyIncome) || 0;
@@ -11,6 +12,7 @@ const calculateTotalRetirement = (retirementData) => {
 
 const saveClientData = async (formData) => {
   try {
+    // Datos que se guardarán en el documento principal (Client 1)
     const client1Data = {
       fullName: formData.personalInfo.client1.fullName,
       email: formData.personalInfo.client1.email,
@@ -21,7 +23,7 @@ const saveClientData = async (formData) => {
       trust: formData.personalInfo.client1.trust,
       will: formData.personalInfo.client1.will,
       taxRefund: formData.personalInfo.client1.taxRefund,
-      Agent: formData.personalInfo.client1.agent, // Se guarda el agente seleccionado
+      Agent: formData.personalInfo.client1.agent, // Se guarda el valor del select Agent
       insurableData: {
         debt: formData.insurableNeeds.client1.debt,
         income: formData.insurableNeeds.client1.income,
@@ -33,21 +35,50 @@ const saveClientData = async (formData) => {
       },
       taxData: formData.taxInformation,
       AdditionalInfo: formData.additionalInfo,
-      savedAt: new Date(), // Hora local
+      savedAt: new Date(), // Se guarda la fecha y hora de guardado (hora local)
       hasClient2: formData.personalInfo.client2 ? true : false,
       hasKids: formData.personalInfo.kids && formData.personalInfo.kids.length > 0,
     };
 
     if (formData.editingClientId) {
+      // Modo edición: actualizar el documento principal.
       const clientDocRef = doc(db, "clients", formData.editingClientId);
       await updateDoc(clientDocRef, client1Data);
       console.log("Client 1 updated with ID:", formData.editingClientId);
+      
+      // Ahora actualizamos la subcolección "relatedPeople"
+      const relatedPeopleCollection = collection(clientDocRef, "relatedPeople");
+      
+      // Actualizar o crear Client 2 si existe.
+      if (formData.personalInfo.client2) {
+        await setDoc(
+          doc(relatedPeopleCollection, "Cliente2"),
+          formData.personalInfo.client2,
+          { merge: true }
+        );
+      } else {
+        // Opcional: Podrías eliminar el documento "Cliente2" si no existe (no se muestra en el formulario).
+      }
+      
+      // Actualizar o crear los documentos para cada Kid.
+      if (formData.personalInfo.kids && formData.personalInfo.kids.length > 0) {
+        formData.personalInfo.kids.forEach(async (kid, index) => {
+          await setDoc(
+            doc(relatedPeopleCollection, `Kid${index + 1}`),
+            kid,
+            { merge: true }
+          );
+        });
+      } else {
+        // Opcional: Eliminar documentos existentes si se removieron los kids.
+      }
     } else {
+      // Modo creación: crear un nuevo documento principal.
       const clientDocRef = await addDoc(collection(db, "clients"), client1Data);
       console.log("Client 1 created with ID:", clientDocRef.id);
-
+      
+      // Crear la subcolección "relatedPeople"
       const relatedPeopleCollection = collection(clientDocRef, "relatedPeople");
-
       if (formData.personalInfo.client2) {
         const client2Data = {
           fullName: formData.personalInfo.client2.fullName,
@@ -69,11 +100,10 @@ const saveClientData = async (formData) => {
           },
           savedAt: new Date(),
         };
-
         await setDoc(doc(relatedPeopleCollection, "Cliente2"), client2Data);
         console.log("Client 2 saved in relatedPeople");
       }
-
+      
       if (formData.personalInfo.kids && formData.personalInfo.kids.length > 0) {
         formData.personalInfo.kids.forEach(async (kid, index) => {
           const kidData = {
