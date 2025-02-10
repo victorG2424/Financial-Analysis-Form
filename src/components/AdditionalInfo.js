@@ -99,97 +99,6 @@ const AdditionalInfo = () => {
     }));
   };
 
-  // Función para generar el PDF exportado con la estructura solicitada.
-  const generatePDF = () => {
-    const doc = new jsPDF({
-      unit: 'mm',
-      format: 'a4',
-    });
-
-    const marginTop = 20;
-    const marginLeft = 20;
-    const marginBottom = 20;
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const lineHeight = 7;
-    let currentY = marginTop;
-
-    // Página 1: Portada
-    doc.setFontSize(16);
-    doc.text(`${formData.personalInfo.client1.fullName}`, marginLeft, currentY);
-    currentY += lineHeight;
-
-    doc.setFontSize(12);
-    doc.text(`Agente: ${formData.personalInfo.client1.agent}`, marginLeft, currentY);
-    currentY += lineHeight;
-
-    doc.setFontSize(18);
-    doc.text("Financial Analysis", marginLeft, currentY);
-    currentY += lineHeight;
-
-    const savedDate = formData.savedAt ? formatDate(formData.savedAt) : formatDate(new Date());
-    doc.setFontSize(12);
-    doc.text(`${savedDate}`, marginLeft, currentY);
-    currentY += lineHeight;
-
-    if (currentY > pageHeight - marginBottom) {
-      // Se podría agregar una nueva página si fuese necesario.
-    }
-
-    // Página 2 y siguientes: Información Detallada
-    doc.addPage();
-    currentY = marginTop;
-
-    const addTextLine = (text) => {
-      if (currentY + lineHeight > pageHeight - marginBottom) {
-        doc.addPage();
-        currentY = marginTop;
-      }
-      doc.text(text, marginLeft, currentY);
-      currentY += lineHeight;
-    };
-
-    addTextLine("Client 1 Information:");
-    addTextLine(`Name: ${formData.personalInfo.client1.fullName}`);
-    addTextLine(`Email: ${formData.personalInfo.client1.email}`);
-    addTextLine(`Phone Number: ${formData.personalInfo.client1.phone}`);
-    addTextLine(`State: ${formData.personalInfo.client1.state}`);
-    addTextLine(`Date of Birth: ${formatDate(formData.personalInfo.client1.dob)}`);
-    addTextLine(`Smoker: ${formData.personalInfo.client1.smoker}`);
-    addTextLine(`Medical Condition: ${formData.personalInfo.client1.medicalCondition}`);
-    addTextLine(`Do you have a trust?: ${formData.personalInfo.client1.trust}`);
-    addTextLine(`Do you have a will?: ${formData.personalInfo.client1.will}`);
-    addTextLine(`Did you get a tax refund?: ${formData.personalInfo.client1.taxRefund}`);
-    addTextLine("");
-
-    if (formData.personalInfo.client2) {
-      addTextLine("Client 2 Information:");
-      addTextLine(`Name: ${formData.personalInfo.client2.fullName}`);
-      addTextLine(`Email: ${formData.personalInfo.client2.email}`);
-      addTextLine(`Phone Number: ${formData.personalInfo.client2.phone}`);
-      addTextLine(`State: ${formData.personalInfo.client2.state}`);
-      addTextLine(`Date of Birth: ${formatDate(formData.personalInfo.client2.dob)}`);
-      addTextLine(`Smoker: ${formData.personalInfo.client2.smoker}`);
-      addTextLine(`Medical Condition: ${formData.personalInfo.client2.medicalCondition}`);
-      addTextLine(`Do you have a trust?: ${formData.personalInfo.client2.trust}`);
-      addTextLine(`Do you have a will?: ${formData.personalInfo.client2.will}`);
-      addTextLine(`Did you get a tax refund?: ${formData.personalInfo.client2.taxRefund}`);
-      addTextLine("");
-    }
-
-    if (formData.personalInfo.kids && formData.personalInfo.kids.length > 0) {
-      addTextLine("Kids Information:");
-      formData.personalInfo.kids.forEach((kid, index) => {
-        addTextLine(`Kid ${index + 1} Name: ${kid.fullName}`);
-        addTextLine(`Kid ${index + 1} Date of Birth: ${formatDate(kid.dob)}`);
-      });
-      addTextLine("");
-    }
-
-    // Secciones adicionales se pueden agregar aquí...
-
-    doc.save("financial_analysis.pdf");
-  };
 
   // Al cerrar el modal, solo se cierra el modal (no se reinicia ni navega).
   const handleCloseModal = () => {
@@ -258,9 +167,7 @@ const AdditionalInfo = () => {
               <Button variant="contained" color="primary" type="submit">
                 {formData.isEdit ? "Update Form" : "Save Form"}
               </Button>
-              <Button variant="outlined" color="secondary" onClick={generatePDF} style={{ marginLeft: '10px' }}>
-                Export PDF
-              </Button>
+
             </div>
           </Form>
         )}

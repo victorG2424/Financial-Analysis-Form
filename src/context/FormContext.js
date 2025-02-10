@@ -10,16 +10,16 @@ export const initialState = {
       email: '',
       phone: '',
       state: '',
-      dob: '',
+      dob: '', // Formato: "YYYY-MM-DD"
       smoker: '',
       medicalCondition: '',
       trust: '',
       will: '',
       taxRefund: '',
-      agent: '' // Se asignará en el formulario de Additional Information
+      agent: '' // Se asignará en AdditionalInfo
     },
-    client2: null,
-    kids: [] // Arreglo de kids; se actualizará mediante el modal "Add Kids"
+    client2: null, // Se agregará cuando se pulse "Add Another Client"
+    kids: [] // Arreglo para la información de los kids
   },
   insurableNeeds: {
     client1: {
@@ -27,6 +27,7 @@ export const initialState = {
       income: 0,
       education: 0,
       subtractInsurances: 0,
+      mortgage: 0,
     },
     client2: null,
   },
