@@ -147,7 +147,7 @@ const generateHTMLForClient = (fullData) => {
   // Página 1: Portada
   const page1 = `
     <div class="container">
-      <img src="https://analysis.financiegroup.com/logo-gfi.svg" alt="Financial Analysis Report" style="display: block; margin: 0 auto; width: 60%;">
+      <img src="https://financiegroup.com/logo-gfi.svg" alt="Financial Analysis Report" style="display: block; margin: 0 auto; width: 60%;">
       <h1>Financial Analysis Report</h1>
       <h2>Client: ${fullData.fullName}</h2>
       <p><strong>Agent:</strong> ${fullData.Agent}</p>

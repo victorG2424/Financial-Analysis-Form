@@ -228,11 +228,7 @@ const TaxInformation = () => {
               </Grid>
             </Grid>
             <AutoSave save={handleAutoSave} />
-            <div style={{ marginTop: '20px' }}>
-              <Button variant="contained" color="primary" type="submit">
-                Next Form
-              </Button>
-            </div>
+
           </Form>
         )}
       </Formik>

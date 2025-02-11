@@ -240,7 +240,7 @@ const PersonalInfo = () => {
                 <TextField
                   select
                   fullWidth
-                  label="Did you get a tax refund?"
+                  label="Do you get a tax refund?"
                   name="taxRefund"
                   value={values.taxRefund}
                   onChange={handleChange}

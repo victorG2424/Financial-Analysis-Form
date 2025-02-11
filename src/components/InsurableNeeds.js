@@ -167,7 +167,7 @@ const InsurableNeeds = () => {
                     <Grid item xs={3}>
                       <TextField
                         fullWidth
-                        label="Subtract Current Insurances ($)"
+                        label="Current Insurances ($)"
                         name="subtractInsurances"
                         type="number"
                         value={values.subtractInsurances}
