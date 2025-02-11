@@ -20,7 +20,7 @@ function AppContent() {
   };
 
   return (
-    <Container maxWidth="md">
+    <Container maxWidth="lg">
       <h1>Financial Analysis Form</h1>
       {/* Condicionalmente se muestran los botones solo si no estamos en la vista de clientes */}
       {location.pathname === "/" && (

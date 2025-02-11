@@ -91,7 +91,6 @@ const generateHTMLForClient = (fullData) => {
         font-size: 22px;
         border-left: 5px solid #133857;
         padding-left: 10px;
-        margin-top: 30px;
       }
       .section {
         padding: 15px;
@@ -148,11 +147,10 @@ const generateHTMLForClient = (fullData) => {
   // Página 1: Portada
   const page1 = `
     <div class="container">
-      <img src="../GFI-Logo-blue.svg" alt="Financial Analysis Report" style="display: block; margin: 0 auto; width: 60%;">
+      <img src="./gfi-logo.svg" alt="Financial Analysis Report" style="display: block; margin: 0 auto; width: 60%;">
       <h1>Financial Analysis Report</h1>
       <h2>Client: ${fullData.fullName}</h2>
       <p><strong>Agent:</strong> ${fullData.Agent}</p>
-      <div class="separator"></div>
     </div>
   `;
 
@@ -337,9 +335,6 @@ const generateHTMLForClient = (fullData) => {
           <p><strong>GFI Recommendations:</strong> ${fullData.AdditionalInfo.recommendations}</p>
           <p><strong>Date Next Appointment:</strong> ${formatDate(fullData.AdditionalInfo.nextAppointment)}</p>
         </div>
-      </div>
-      <div class="footer">
-        <p>© 2025 Financial Report - All Rights Reserved</p>
       </div>
     </div>
   ` : '<div class="container"><div class="section"><p>No additional information available.</p></div></div>';

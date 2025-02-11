@@ -14,8 +14,10 @@ import {
   Button,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import generateHTMLForClient from './PDFExportDB';
+import { jsPDF } from "jspdf";
+import generateHTMLForClient from './PDFExportDB'; // Asegúrate de que PDFExportDB.js esté en la misma carpeta
 
+// Función para formatear fecha en formato USA (mm/dd/yyyy)
 const formatDate = (dateInput) => {
   if (!dateInput) return '';
   const date = new Date(dateInput);
@@ -26,6 +28,7 @@ const formatDate = (dateInput) => {
   return `${month}/${day}/${year}`;
 };
 
+// Función para traer datos de la subcolección "relatedPeople" para un cliente
 const fetchRelatedPeople = async (clientId) => {
   const relatedPeopleRef = collection(db, "clients", clientId, "relatedPeople");
   const snapshot = await getDocs(relatedPeopleRef);
@@ -118,9 +121,9 @@ const ViewClients = () => {
           : { goals: '', retireAge: 0, retiredYears: 0, monthlyIncome: 0 },
       },
       taxInformation: client.taxData || {
-        taxNow: { checking: 0, savings: 0, other: 0 },
-        taxLater: { iras: 0, retirementPlan: 0, other: 0 },
-        taxAdvantaged: { rothIras: 0, plan529: 0, lifeInsurance: 0 },
+        taxNow: { checking: 0, savings: 0, other: 0, total: 0 },
+        taxLater: { iras: 0, retirementPlan: 0, other: 0, total: 0 },
+        taxAdvantaged: { rothIras: 0, plan529: 0, lifeInsurance: 0, total: 0 },
         monthlySavings: [],
         planOption: '',
       },
@@ -133,7 +136,7 @@ const ViewClients = () => {
     navigate("/");
   };
 
-  // Función para exportar: genera el HTML con la info completa y abre una nueva pestaña
+  // Función para exportar: abre una nueva pestaña con el HTML generado
   const handleExport = async (client) => {
     try {
       let client2Data = client.client2 || null;
@@ -151,7 +154,7 @@ const ViewClients = () => {
         kids: kidsData,
       };
 
-      // Generamos el HTML usando la función generateHTMLForClient (que ya usa los nombres reales)
+      // Genera el HTML usando la función generateHTMLForClient
       const htmlString = generateHTMLForClient(fullData);
       // Abrir nueva pestaña y escribir el HTML
       const newWindow = window.open('', '_blank');
@@ -166,6 +169,49 @@ const ViewClients = () => {
       console.error("Error exporting HTML:", error);
     }
   };
+
+  // Función para descargar el PDF con la misma información
+// Dentro de ViewClients.js, reemplaza la función handleDownload existente por la siguiente:
+
+const handleDownload = async (client) => {
+  try {
+    let client2Data = client.client2 || null;
+    let kidsData = client.kids || [];
+    if (client.hasClient2 && !client.client2) {
+      const { client2Data: fetchedClient2, kidsData: fetchedKids } = await fetchRelatedPeople(client.id);
+      client2Data = fetchedClient2;
+      if (!client.kids || client.kids.length === 0) {
+        kidsData = fetchedKids;
+      }
+    }
+    const fullData = {
+      ...client,
+      client2: client2Data,
+      kids: kidsData,
+    };
+
+    // Genera el HTML usando la función generateHTMLForClient importada
+    const htmlString = generateHTMLForClient(fullData);
+    
+    // Abrir una nueva ventana con el HTML generado
+    const newWindow = window.open('', '_blank');
+    if (newWindow) {
+      newWindow.document.open();
+      newWindow.document.write(htmlString);
+      newWindow.document.close();
+      newWindow.focus();
+      // Esperamos un breve lapso para asegurarnos de que el contenido se renderice y luego se llama a window.print()
+      setTimeout(() => {
+        newWindow.print();
+      }, 1000);
+    } else {
+      console.error("No se pudo abrir la ventana para descarga.");
+    }
+  } catch (error) {
+    console.error("Error downloading PDF:", error);
+  }
+};
+
 
   const handleCreateClient = () => {
     setFormData(initialState);
@@ -205,6 +251,9 @@ const ViewClients = () => {
                   </Button>
                   <Button variant="outlined" color="secondary" onClick={() => handleExport(client)} sx={{ ml: 1 }}>
                     Export
+                  </Button>
+                  <Button variant="outlined" color="success" onClick={() => handleDownload(client)} sx={{ ml: 1 }}>
+                    Download File
                   </Button>
                 </TableCell>
               </TableRow>
