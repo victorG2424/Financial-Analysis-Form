@@ -1,7 +1,7 @@
 // src/components/PDFExportDB.js
 import React from 'react';
 
-// Función helper para formatear una fecha a formato mm/dd/yyyy
+// Helper para formatear fecha a mm/dd/yyyy
 const formatDate = (dateInput) => {
   if (!dateInput) return '';
   const date = new Date(dateInput);
@@ -24,9 +24,7 @@ const calculateRetirementTotal = (data) => {
 
 // Función para obtener toda la información del cliente (documento principal y subcolección relatedPeople)
 const fetchClientFullData = async (clientId) => {
-  // Aquí se asume que tienes configurado Firestore y que importas el objeto db desde tu archivo de configuración.
-  // Por ejemplo: import { db } from '../firebase/config';
-  // Asegúrate de tenerlo configurado.
+  // Importación dinámica de funciones Firestore y la configuración de la BD.
   const { doc, getDoc, collection, getDocs } = await import('firebase/firestore');
   const { db } = await import('../firebase/config');
 
@@ -37,6 +35,7 @@ const fetchClientFullData = async (clientId) => {
   }
   const clientData = clientSnap.data();
 
+  // Obtenemos la subcolección "relatedPeople"
   const relatedPeopleRef = collection(clientDocRef, "relatedPeople");
   const snapshot = await getDocs(relatedPeopleRef);
   let client2Data = null;
@@ -122,6 +121,21 @@ const generateHTMLForClient = (fullData) => {
         background: #ddd;
         margin: 30px 0;
       }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      table, th, td {
+        border: 1px solid #ddd;
+      }
+      th, td {
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #f1f1f1;
+      }
       .footer {
         text-align: center;
         font-size: 14px;
@@ -134,7 +148,7 @@ const generateHTMLForClient = (fullData) => {
   // Página 1: Portada
   const page1 = `
     <div class="container">
-      <img src="./GFI-Logo-blue.svg" alt="Financial Analysis Report" style="display: block; margin: 0 auto; width: 60%;">
+      <img src="../GFI-Logo-blue.svg" alt="Financial Analysis Report" style="display: block; margin: 0 auto; width: 60%;">
       <h1>Financial Analysis Report</h1>
       <h2>Client: ${fullData.fullName}</h2>
       <p><strong>Agent:</strong> ${fullData.Agent}</p>
@@ -153,9 +167,9 @@ const generateHTMLForClient = (fullData) => {
         <p><strong>Date of Birth:</strong> ${fullData.dob ? fullData.dob : ''}</p>
         <p><strong>Smoker:</strong> ${fullData.smoker}</p>
         <p><strong>Medical Condition:</strong> ${fullData.medicalCondition}</p>
-        <p><strong>Do you have a trust?</strong> ${fullData.trust}</p>
-        <p><strong>Do you have a will?</strong> ${fullData.will}</p>
-        <p><strong>Did you get a tax refund?</strong> ${fullData.taxRefund}</p>
+        <p><strong>Do you have a trust?:</strong> ${fullData.trust}</p>
+        <p><strong>Do you have a will?:</strong> ${fullData.will}</p>
+        <p><strong>Did you get a tax refund?:</strong> ${fullData.taxRefund}</p>
       </div>
     </div>
   `;
@@ -170,9 +184,9 @@ const generateHTMLForClient = (fullData) => {
         <p><strong>Date of Birth:</strong> ${fullData.client2.dob ? fullData.client2.dob : ''}</p>
         <p><strong>Smoker:</strong> ${fullData.client2.smoker}</p>
         <p><strong>Medical Condition:</strong> ${fullData.client2.medicalCondition}</p>
-        <p><strong>Do you have a trust?</strong> ${fullData.client2.trust}</p>
-        <p><strong>Do you have a will?</strong> ${fullData.client2.will}</p>
-        <p><strong>Did you get a tax refund?</strong> ${fullData.client2.taxRefund}</p>
+        <p><strong>Do you have a trust?:</strong> ${fullData.client2.trust}</p>
+        <p><strong>Do you have a will?:</strong> ${fullData.client2.will}</p>
+        <p><strong>Did you get a tax refund?:</strong> ${fullData.client2.taxRefund}</p>
       </div>
     </div>
   ` : '';
@@ -267,53 +281,71 @@ const generateHTMLForClient = (fullData) => {
     </div>
   `;
 
-  // Página 5: Tax Information (para Client 1)
+  // Página 5: Tax Information en tres columnas
   const taxInfo = fullData.taxData ? `
-    <div class="section">
-      <h2>Tax Information - ${fullData.fullName}</h2>
-      <div class="info">
-        <p><strong>Tax Now - Checking:</strong> ${fullData.taxData.taxNow.checking}</p>
-        <p><strong>Tax Now - Savings:</strong> ${fullData.taxData.taxNow.savings}</p>
-        <p><strong>Tax Now - Other:</strong> ${fullData.taxData.taxNow.other}</p>
-        <p><strong>Tax Later - IRAs:</strong> ${fullData.taxData.taxLater.iras}</p>
-        <p><strong>Tax Later - Retirement Plan:</strong> ${fullData.taxData.taxLater.retirementPlan}</p>
-        <p><strong>Tax Later - Other:</strong> ${fullData.taxData.taxLater.other}</p>
-        <p><strong>Tax Advantaged - Roth IRAs:</strong> ${fullData.taxData.taxAdvantaged.rothIras}</p>
-        <p><strong>Tax Advantaged - Plan 529:</strong> ${fullData.taxData.taxAdvantaged.plan529}</p>
-        <p><strong>Tax Advantaged - Life Insurance:</strong> ${fullData.taxData.taxAdvantaged.lifeInsurance}</p>
-        <p><strong>Monthly Savings Option:</strong> ${fullData.taxData.planOption}</p>
+    <div class="container">
+      <div class="section">
+        <h2>Tax Information - ${fullData.fullName}</h2>
+        <table>
+          <tr>
+            <th>Tax Now</th>
+            <th>Tax Later</th>
+            <th>Tax Advantaged</th>
+          </tr>
+          <tr>
+            <td>
+              <p><strong>Checking:</strong> ${fullData.taxData.taxNow.checking}</p>
+              <p><strong>Savings:</strong> ${fullData.taxData.taxNow.savings}</p>
+              <p><strong>Other:</strong> ${fullData.taxData.taxNow.other}</p>
+              <p><strong>Total:</strong> ${fullData.taxData.taxNow.total}</p>
+            </td>
+            <td>
+              <p><strong>IRAs:</strong> ${fullData.taxData.taxLater.iras}</p>
+              <p><strong>401(k)/403(b):</strong> ${fullData.taxData.taxLater.retirementPlan}</p>
+              <p><strong>Other:</strong> ${fullData.taxData.taxLater.other}</p>
+              <p><strong>Total:</strong> ${fullData.taxData.taxLater.total}</p>
+            </td>
+            <td>
+              <p><strong>Roth IRAs:</strong> ${fullData.taxData.taxAdvantaged.rothIras}</p>
+              <p><strong>Plan 529:</strong> ${fullData.taxData.taxAdvantaged.plan529}</p>
+              <p><strong>Life Ins/Other:</strong> ${fullData.taxData.taxAdvantaged.lifeInsurance}</p>
+              <p><strong>Total:</strong> ${fullData.taxData.taxAdvantaged.total}</p>
+            </td>
+          </tr>
+        </table>
+        <div class="info">
+          <p><strong>Monthly Savings:</strong> ${
+            fullData.taxData.monthlySavings && fullData.taxData.monthlySavings.length > 0 
+              ? fullData.taxData.monthlySavings.join(', ')
+              : "0"
+          }</p>
+          <p><strong>Plan Option:</strong> ${fullData.taxData.planOption ? fullData.taxData.planOption : "No"}</p>
+        </div>
       </div>
     </div>
-  ` : '<div class="section"><p>No tax information available.</p></div>';
+  ` : '<div class="container"><div class="section"><p>No tax information available.</p></div></div>';
 
-  const page5 = `
-    <div class="container">
-      ${taxInfo}
-    </div>
-  `;
+  const page5 = taxInfo;
 
   // Página 6: Additional Information
   const additional = fullData.AdditionalInfo ? `
-    <div class="section">
-      <h2>Additional Information</h2>
-      <div class="info">
-        <p><strong>Financial Goals:</strong> ${fullData.AdditionalInfo.financialGoals}</p>
-        <p><strong>GFI Recommendations:</strong> ${fullData.AdditionalInfo.recommendations}</p>
-        <p><strong>Date Next Appointment:</strong> ${formatDate(fullData.AdditionalInfo.nextAppointment)}</p>
-      </div>
-    </div>
-  ` : '<div class="section"><p>No additional information available.</p></div>';
-
-  const page6 = `
     <div class="container">
-      ${additional}
+      <div class="section">
+        <h2>Additional Information</h2>
+        <div class="info">
+          <p><strong>Financial Goals:</strong> ${fullData.AdditionalInfo.financialGoals}</p>
+          <p><strong>GFI Recommendations:</strong> ${fullData.AdditionalInfo.recommendations}</p>
+          <p><strong>Date Next Appointment:</strong> ${formatDate(fullData.AdditionalInfo.nextAppointment)}</p>
+        </div>
+      </div>
       <div class="footer">
         <p>© 2025 Financial Report - All Rights Reserved</p>
       </div>
     </div>
-  `;
+  ` : '<div class="container"><div class="section"><p>No additional information available.</p></div></div>';
 
-  // Combinar todas las páginas en un HTML completo
+  const page6 = additional;
+
   const html = `
     <!DOCTYPE html>
     <html>

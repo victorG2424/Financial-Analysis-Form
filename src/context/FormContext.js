@@ -45,16 +45,19 @@ export const initialState = {
       checking: 0,
       savings: 0,
       other: 0,
+      total: 0, // Total = checking + savings + other
     },
     taxLater: {
       iras: 0,
-      retirementPlan: 0,
+      retirementPlan: 0, // Representa 401(k)/403(b)
       other: 0,
+      total: 0, // Total = iras + retirementPlan + other
     },
     taxAdvantaged: {
       rothIras: 0,
       plan529: 0,
       lifeInsurance: 0,
+      total: 0, // Total = rothIras + plan529 + lifeInsurance
     },
     monthlySavings: [],
     planOption: '',
