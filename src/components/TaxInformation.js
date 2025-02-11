@@ -1,6 +1,6 @@
 // src/components/TaxInformation.js
 import React, { useContext } from 'react';
-import { Formik, Form } from 'formik';
+import { Formik, Form, FastField, useFormikContext } from 'formik';
 import { FormContext } from '../context/FormContext';
 import {
   Button,
@@ -9,10 +9,191 @@ import {
   Checkbox,
   FormControlLabel,
   Radio,
-  RadioGroup
+  RadioGroup,
+  Typography,
 } from '@mui/material';
-import { useFormikContext } from 'formik';
 import AutoSave from './AutoSave';
+
+const TaxNowFields = () => {
+  const { values, setFieldValue } = useFormikContext();
+
+  const handleChange = (field, value) => {
+    const newVal = Number(value) || 0;
+    setFieldValue(`taxNow.${field}`, newVal);
+    // Recalcular total Tax Now
+    const total =
+      Number(values.taxNow.checking) +
+      Number(values.taxNow.savings) +
+      Number(values.taxNow.other);
+    setFieldValue('taxNow.total', total);
+  };
+
+  return (
+    <>
+      <FastField name="taxNow.checking">
+        {({ field }) => (
+          <TextField
+            {...field}
+            fullWidth
+            label="Checking ($)"
+            type="number"
+            style={{ marginBottom: '10px' }}
+            onChange={(e) => handleChange('checking', e.target.value)}
+          />
+        )}
+      </FastField>
+      <FastField name="taxNow.savings">
+        {({ field }) => (
+          <TextField
+            {...field}
+            fullWidth
+            label="Savings ($)"
+            type="number"
+            style={{ marginBottom: '10px' }}
+            onChange={(e) => handleChange('savings', e.target.value)}
+          />
+        )}
+      </FastField>
+      <FastField name="taxNow.other">
+        {({ field }) => (
+          <TextField
+            {...field}
+            fullWidth
+            label="Other ($)"
+            type="number"
+            style={{ marginBottom: '10px' }}
+            onChange={(e) => handleChange('other', e.target.value)}
+          />
+        )}
+      </FastField>
+      <div style={{ marginTop: '8px' }}>
+        <Typography variant="body1">
+          <strong>Total ($):</strong> {values.taxNow.total}
+        </Typography>
+      </div>
+    </>
+  );
+};
+
+const TaxLaterFields = () => {
+  const { values, setFieldValue } = useFormikContext();
+
+  const handleChange = (field, value) => {
+    const newVal = Number(value) || 0;
+    setFieldValue(`taxLater.${field}`, newVal);
+    const total =
+      Number(values.taxLater.iras) +
+      Number(values.taxLater.retirementPlan) +
+      Number(values.taxLater.other);
+    setFieldValue('taxLater.total', total);
+  };
+
+  return (
+    <>
+      <FastField name="taxLater.iras">
+        {({ field }) => (
+          <TextField
+            {...field}
+            fullWidth
+            label="IRAs ($)"
+            type="number"
+            style={{ marginBottom: '10px' }}
+            onChange={(e) => handleChange('iras', e.target.value)}
+          />
+        )}
+      </FastField>
+      <FastField name="taxLater.retirementPlan">
+        {({ field }) => (
+          <TextField
+            {...field}
+            fullWidth
+            label="401(k)/403(b) ($)"
+            type="number"
+            style={{ marginBottom: '10px' }}
+            onChange={(e) => handleChange('retirementPlan', e.target.value)}
+          />
+        )}
+      </FastField>
+      <FastField name="taxLater.other">
+        {({ field }) => (
+          <TextField
+            {...field}
+            fullWidth
+            label="Other ($)"
+            type="number"
+            style={{ marginBottom: '10px' }}
+            onChange={(e) => handleChange('other', e.target.value)}
+          />
+        )}
+      </FastField>
+      <div style={{ marginTop: '8px' }}>
+        <Typography variant="body1">
+          <strong>Total ($):</strong> {values.taxLater.total}
+        </Typography>
+      </div>
+    </>
+  );
+};
+
+const TaxAdvantagedFields = () => {
+  const { values, setFieldValue } = useFormikContext();
+
+  const handleChange = (field, value) => {
+    const newVal = Number(value) || 0;
+    setFieldValue(`taxAdvantaged.${field}`, newVal);
+    const total =
+      Number(values.taxAdvantaged.rothIras) +
+      Number(values.taxAdvantaged.plan529) +
+      Number(values.taxAdvantaged.lifeInsurance);
+    setFieldValue('taxAdvantaged.total', total);
+  };
+
+  return (
+    <>
+      <FastField name="taxAdvantaged.rothIras">
+        {({ field }) => (
+          <TextField
+            {...field}
+            fullWidth
+            label="Roth IRAs ($)"
+            type="number"
+            style={{ marginBottom: '10px' }}
+            onChange={(e) => handleChange('rothIras', e.target.value)}
+          />
+        )}
+      </FastField>
+      <FastField name="taxAdvantaged.plan529">
+        {({ field }) => (
+          <TextField
+            {...field}
+            fullWidth
+            label="529 Plan ($)"
+            type="number"
+            style={{ marginBottom: '10px' }}
+            onChange={(e) => handleChange('plan529', e.target.value)}
+          />
+        )}
+      </FastField>
+      <FastField name="taxAdvantaged.lifeInsurance">
+        {({ field }) => (
+          <TextField
+            {...field}
+            fullWidth
+            label="Life Ins/Other ($)"
+            type="number"
+            style={{ marginBottom: '10px' }}
+            onChange={(e) => handleChange('lifeInsurance', e.target.value)}
+          />
+        )}
+      </FastField>
+      <div style={{ marginTop: '8px' }}>
+        <Typography variant="body1">
+          <strong>Total ($):</strong> {values.taxAdvantaged.total}
+        </Typography>
+      </div>
+    </>
+  );
+};
 
 const TaxInformation = () => {
   const { formData, setFormData } = useContext(FormContext);
@@ -20,156 +201,15 @@ const TaxInformation = () => {
 
   const onSubmit = (values) => {
     console.log("Tax Information submitted", values);
-    // Puedes agregar lógica adicional si es necesario.
+    // Lógica adicional si es necesaria
   };
 
-  // Función de autosave
   const handleAutoSave = (values) => {
     if (JSON.stringify(values) === JSON.stringify(formData.taxInformation)) return;
     setFormData(prev => ({
       ...prev,
       taxInformation: values,
     }));
-  };
-
-  // Dentro de Formik usaremos un componente auxiliar para manejar los cambios y recalcular totales.
-  const TaxNowFields = () => {
-    const { values, setFieldValue } = useFormikContext();
-    const handleChange = (field, value) => {
-      const newVal = Number(value) || 0;
-      setFieldValue(`taxNow.${field}`, newVal);
-      // Recalcular total Tax Now
-      const total = Number(values.taxNow.checking) + Number(values.taxNow.savings) + Number(values.taxNow.other);
-      setFieldValue('taxNow.total', total);
-    };
-    return (
-      <>
-        <TextField
-          fullWidth
-          label="Checking ($)"
-          name="taxNow.checking"
-          type="number"
-          value={values.taxNow.checking}
-          onChange={(e) => handleChange('checking', e.target.value)}
-        />
-        <TextField
-          fullWidth
-          label="Savings ($)"
-          name="taxNow.savings"
-          type="number"
-          value={values.taxNow.savings}
-          onChange={(e) => handleChange('savings', e.target.value)}
-        />
-        <TextField
-          fullWidth
-          label="Other ($)"
-          name="taxNow.other"
-          type="number"
-          value={values.taxNow.other}
-          onChange={(e) => handleChange('other', e.target.value)}
-        />
-        <TextField
-          fullWidth
-          label="Total ($)"
-          name="taxNow.total"
-          type="number"
-          value={values.taxNow.total}
-          InputProps={{ readOnly: true }}
-        />
-      </>
-    );
-  };
-
-  const TaxLaterFields = () => {
-    const { values, setFieldValue } = useFormikContext();
-    const handleChange = (field, value) => {
-      const newVal = Number(value) || 0;
-      setFieldValue(`taxLater.${field}`, newVal);
-      const total = Number(values.taxLater.iras) + Number(values.taxLater.retirementPlan) + Number(values.taxLater.other);
-      setFieldValue('taxLater.total', total);
-    };
-    return (
-      <>
-        <TextField
-          fullWidth
-          label="IRAs ($)"
-          name="taxLater.iras"
-          type="number"
-          value={values.taxLater.iras}
-          onChange={(e) => handleChange('iras', e.target.value)}
-        />
-        <TextField
-          fullWidth
-          label="401(k)/403(b) ($)"
-          name="taxLater.retirementPlan"
-          type="number"
-          value={values.taxLater.retirementPlan}
-          onChange={(e) => handleChange('retirementPlan', e.target.value)}
-        />
-        <TextField
-          fullWidth
-          label="Other ($)"
-          name="taxLater.other"
-          type="number"
-          value={values.taxLater.other}
-          onChange={(e) => handleChange('other', e.target.value)}
-        />
-        <TextField
-          fullWidth
-          label="Total ($)"
-          name="taxLater.total"
-          type="number"
-          value={values.taxLater.total}
-          InputProps={{ readOnly: true }}
-        />
-      </>
-    );
-  };
-
-  const TaxAdvantagedFields = () => {
-    const { values, setFieldValue } = useFormikContext();
-    const handleChange = (field, value) => {
-      const newVal = Number(value) || 0;
-      setFieldValue(`taxAdvantaged.${field}`, newVal);
-      const total = Number(values.taxAdvantaged.rothIras) + Number(values.taxAdvantaged.plan529) + Number(values.taxAdvantaged.lifeInsurance);
-      setFieldValue('taxAdvantaged.total', total);
-    };
-    return (
-      <>
-        <TextField
-          fullWidth
-          label="Roth IRAs ($)"
-          name="taxAdvantaged.rothIras"
-          type="number"
-          value={values.taxAdvantaged.rothIras}
-          onChange={(e) => handleChange('rothIras', e.target.value)}
-        />
-        <TextField
-          fullWidth
-          label="529 Plan ($)"
-          name="taxAdvantaged.plan529"
-          type="number"
-          value={values.taxAdvantaged.plan529}
-          onChange={(e) => handleChange('plan529', e.target.value)}
-        />
-        <TextField
-          fullWidth
-          label="Life Ins/Other ($)"
-          name="taxAdvantaged.lifeInsurance"
-          type="number"
-          value={values.taxAdvantaged.lifeInsurance}
-          onChange={(e) => handleChange('lifeInsurance', e.target.value)}
-        />
-        <TextField
-          fullWidth
-          label="Total ($)"
-          name="taxAdvantaged.total"
-          type="number"
-          value={values.taxAdvantaged.total}
-          InputProps={{ readOnly: true }}
-        />
-      </>
-    );
   };
 
   return (
@@ -194,7 +234,7 @@ const TaxInformation = () => {
                 <h4>Tax Advantaged</h4>
                 <TaxAdvantagedFields />
               </Grid>
-              {/* Checkbox options */}
+              {/* Monthly Savings */}
               <Grid item xs={12}>
                 <h4>How much money can you comfortably put aside each month?</h4>
                 {["200", "500", "1000", "1500", "2500", "5000", "10000", "10000+"].map(option => (
@@ -205,30 +245,35 @@ const TaxInformation = () => {
                         name="monthlySavings"
                         value={option}
                         checked={values.monthlySavings.includes(option)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setFieldValue("monthlySavings", [...values.monthlySavings, option]);
-                          } else {
-                            setFieldValue("monthlySavings", values.monthlySavings.filter(val => val !== option));
-                          }
-                        }}
+                        onChange={handleChange}
                       />
                     }
                     label={`$${option}`}
+                    style={{ marginBottom: '10px' }}
                   />
                 ))}
+                <Typography variant="h6" style={{ marginTop: '10px' }}>
+                  Monthly Savings: {values.monthlySavings && values.monthlySavings.length > 0 ? values.monthlySavings.join(', ') : "0"}
+                </Typography>
               </Grid>
-              {/* Radio buttons */}
+              {/* Plan Option */}
               <Grid item xs={12}>
                 <h4>If we can put together a plan to show you how to achieve all this, would that be something you would take advantage of?</h4>
                 <RadioGroup row name="planOption" value={values.planOption} onChange={handleChange}>
                   <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
                   <FormControlLabel value="No" control={<Radio />} label="No" />
                 </RadioGroup>
+                <Typography variant="h6" style={{ marginTop: '10px' }}>
+                  Plan Option: {values.planOption || "No"}
+                </Typography>
               </Grid>
             </Grid>
             <AutoSave save={handleAutoSave} />
-
+            <div style={{ marginTop: '20px' }}>
+              <Button variant="contained" color="primary" type="submit">
+                Next Form
+              </Button>
+            </div>
           </Form>
         )}
       </Formik>

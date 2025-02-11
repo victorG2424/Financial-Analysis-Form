@@ -150,7 +150,7 @@ const AdditionalInfo = () => {
                     onChange={(e) => setSelectedAgent(e.target.value)}
                   >
                     <MenuItem value="Bianca Garcia">Bianca Garcia</MenuItem>
-                    <MenuItem value="Francisco Garcia">Francisco Garcia</MenuItem>
+                    <MenuItem value="Francisco Velazquez">Francisco Velazquez</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
