@@ -1,3 +1,4 @@
+// src/components/KidsModal.js
 import React, { useState, useContext, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, MenuItem, TextField, Grid } from '@mui/material';
 import { FormContext } from '../context/FormContext';
@@ -39,8 +40,9 @@ const KidsModal = ({ open, handleClose }) => {
           value={numKids}
           onChange={(e) => setNumKids(Number(e.target.value))}
           fullWidth
+          style={{ margin: '10px 0' }}
         >
-          {[1, 2, 3, 4].map(n => (
+          {[0, 1, 2, 3, 4].map(n => (
             <MenuItem key={n} value={n}>{n}</MenuItem>
           ))}
         </TextField>

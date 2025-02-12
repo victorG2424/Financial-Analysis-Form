@@ -177,10 +177,10 @@ const RetirementGoals = () => {
                       />
                     </Grid>
                     <Grid item xs={12}>
-                      <Typography variant="h4" style={{ marginTop: '10px', marginBottom: '10px' }}>
-                        Total Needed for Retirement: <span style={spanStyle}>${calculateTotalRetirement(values)}</span>
-                      </Typography>
-                    </Grid>
+                    <Typography variant="h6" >
+                    <span style={spanStyle}>Total Needed for Retirement: ${calculateTotalRetirement(values)}</span>
+                    </Typography>
+                  </Grid>
                   </Grid>
                   <AutoSave save={handleAutoSaveClient2} />
                 </Form>

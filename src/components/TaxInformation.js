@@ -275,24 +275,15 @@ const TaxInformation = () => {
                 {/* Monthly Savings */}
                 <Grid item xs={12}>
                   <h4>How much money can you comfortably put aside each month?</h4>
-                  {["200", "500", "1000", "1500", "2500", "5000", "10000", "10000+"].map(option => (
-                    <FormControlLabel
-                      key={option}
-                      control={
-                        <Checkbox
-                          name="monthlySavings"
-                          value={option}
-                          checked={values.monthlySavings.includes(option)}
-                          onChange={handleChange}
-                          style={{ marginBottom: '5px' }}
-                        />
-                      }
-                      label={`$${option}`}
-                    />
-                  ))}
-                  <Typography variant="h6" style={{ marginTop: '10px' }}>
-                    Monthly Savings: {values.monthlySavings && values.monthlySavings.length > 0 ? values.monthlySavings.join(', ') : "0"}
-                  </Typography>
+                  <TextField
+                    fullWidth
+                    label="Monthly Savings Amount ($)"
+                    name="monthlySavingsAmount"
+                    type="number"
+                    value={values.monthlySavingsAmount || ''}
+                    onChange={handleChange}
+                    style={{ marginTop: '10px', marginBottom: '5px' }}
+                  />
                 </Grid>
                 {/* Plan Option */}
                 <Grid item xs={12}>

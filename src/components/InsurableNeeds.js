@@ -188,7 +188,11 @@ const InsurableNeeds = () => {
                       />
                     </Grid>
                     <Grid item xs={12}>
-                      <h4>Total Insurable Need: ${calculateTotal(values)}</h4>
+                    <Typography variant="h6">
+                      <span style={spanStyle}>
+                        Total Insurable Need: ${calculateTotal(values)}
+                      </span>
+                    </Typography>
                     </Grid>
                   </Grid>
                   <AutoSave save={handleAutoSaveClient2} />
