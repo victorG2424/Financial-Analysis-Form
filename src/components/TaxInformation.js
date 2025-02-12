@@ -3,7 +3,6 @@ import React, { useContext } from 'react';
 import { Formik, Form, FastField, useFormikContext } from 'formik';
 import { FormContext } from '../context/FormContext';
 import {
-  Button,
   Grid,
   TextField,
   Checkbox,
@@ -14,12 +13,26 @@ import {
 } from '@mui/material';
 import AutoSave from './AutoSave';
 
+const spanStyle = {
+  backgroundColor: '#77ED8B',
+  borderRadius: '5px',
+  color: '#118D57',
+  padding: '5px 10px 5px 10px',
+  display: 'inline-block',
+  fontWeight: 600,
+};
+
 const TaxNowFields = () => {
   const { values, setFieldValue } = useFormikContext();
 
   const handleChange = (field, value) => {
     const newVal = Number(value) || 0;
     setFieldValue(`taxNow.${field}`, newVal);
+    const total =
+      Number(values.taxNow.checking || 0) +
+      Number(values.taxNow.savings || 0) +
+      Number(values.taxNow.other || 0);
+    setFieldValue('taxNow.total', total);
   };
 
   return (
@@ -61,9 +74,12 @@ const TaxNowFields = () => {
         )}
       </FastField>
       <div style={{ marginTop: '8px' }}>
-        <Typography variant="h6">
-          Total: ${Number(values.taxNow.checking || 0) + Number(values.taxNow.savings || 0) + Number(values.taxNow.other || 0)}
-        </Typography>
+        <span style={spanStyle}>
+          Total: $
+          {Number(values.taxNow.checking || 0) +
+            Number(values.taxNow.savings || 0) +
+            Number(values.taxNow.other || 0)}
+        </span>
       </div>
     </>
   );
@@ -75,6 +91,11 @@ const TaxLaterFields = () => {
   const handleChange = (field, value) => {
     const newVal = Number(value) || 0;
     setFieldValue(`taxLater.${field}`, newVal);
+    const total =
+      Number(values.taxLater.iras || 0) +
+      Number(values.taxLater.retirementPlan || 0) +
+      Number(values.taxLater.other || 0);
+    setFieldValue('taxLater.total', total);
   };
 
   return (
@@ -116,9 +137,12 @@ const TaxLaterFields = () => {
         )}
       </FastField>
       <div style={{ marginTop: '8px' }}>
-        <Typography variant="h6">
-          Total: ${Number(values.taxLater.iras || 0) + Number(values.taxLater.retirementPlan || 0) + Number(values.taxLater.other || 0)}
-        </Typography>
+        <span style={spanStyle}>
+          Total: $
+          {Number(values.taxLater.iras || 0) +
+            Number(values.taxLater.retirementPlan || 0) +
+            Number(values.taxLater.other || 0)}
+        </span>
       </div>
     </>
   );
@@ -130,6 +154,11 @@ const TaxAdvantagedFields = () => {
   const handleChange = (field, value) => {
     const newVal = Number(value) || 0;
     setFieldValue(`taxAdvantaged.${field}`, newVal);
+    const total =
+      Number(values.taxAdvantaged.rothIras || 0) +
+      Number(values.taxAdvantaged.plan529 || 0) +
+      Number(values.taxAdvantaged.lifeInsurance || 0);
+    setFieldValue('taxAdvantaged.total', total);
   };
 
   return (
@@ -171,9 +200,12 @@ const TaxAdvantagedFields = () => {
         )}
       </FastField>
       <div style={{ marginTop: '8px' }}>
-        <Typography variant="h6">
-          Total: ${Number(values.taxAdvantaged.rothIras || 0) + Number(values.taxAdvantaged.plan529 || 0) + Number(values.taxAdvantaged.lifeInsurance || 0)}
-        </Typography>
+        <span style={spanStyle}>
+          Total: $
+          {Number(values.taxAdvantaged.rothIras || 0) +
+            Number(values.taxAdvantaged.plan529 || 0) +
+            Number(values.taxAdvantaged.lifeInsurance || 0)}
+        </span>
       </div>
     </>
   );
@@ -232,7 +264,14 @@ const TaxInformation = () => {
                   <h4>Tax Advantaged</h4>
                   <TaxAdvantagedFields />
                 </Grid>
- 
+                {/* Grand Total 
+                <Grid item xs={12}>
+                  <Typography variant="h5" style={{ marginTop: '10px', marginBottom: '10px' }}>
+                    <span style={{ backgroundColor: '#77ED8B', borderRadius: '5px', color: '#118D57', padding: '10px', display: 'inline-block' }}>
+                      Grand Total: ${currentGrandTotal}
+                    </span>
+                  </Typography>
+                </Grid>*/}
                 {/* Monthly Savings */}
                 <Grid item xs={12}>
                   <h4>How much money can you comfortably put aside each month?</h4>
@@ -268,7 +307,6 @@ const TaxInformation = () => {
                 </Grid>
               </Grid>
               <AutoSave save={handleAutoSave} />
-
             </Form>
           );
         }}

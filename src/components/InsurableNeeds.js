@@ -2,18 +2,27 @@
 import React, { useContext } from 'react';
 import { Formik, Form } from 'formik';
 import { FormContext } from '../context/FormContext';
-import { Button, Grid, TextField } from '@mui/material';
+import { Button, Grid, TextField, Typography  } from '@mui/material';
 import AutoSave from './AutoSave';
+const spanStyle = {
+  backgroundColor: '#77ED8B',
+  borderRadius: '5px',
+  color: '#118D57',
+  padding: '10px',
+  display: 'inline-block',
+  fontWeight: 600,
+  fontSize: '14px',
+};
 
 const InsurableNeeds = () => {
   const { formData, setFormData } = useContext(FormContext);
 
   const client1Values = formData.insurableNeeds.client1;
-  const client2Values = formData.insurableNeeds.client2 || { 
-    debt: 0, 
-    income: 0, 
-    education: 0, 
-    subtractInsurances: 0 
+  const client2Values = formData.insurableNeeds.client2 || {
+    debt: 0,
+    income: 0,
+    education: 0,
+    subtractInsurances: 0
   };
 
   const onSubmitClient1 = (values) => {
@@ -35,7 +44,7 @@ const InsurableNeeds = () => {
 
   const handleAutoSaveClient1 = (values) => {
     if (JSON.stringify(values) === JSON.stringify(formData.insurableNeeds.client1)) return;
-    
+
     setFormData(prev => ({
       ...prev,
       insurableNeeds: {
@@ -44,10 +53,10 @@ const InsurableNeeds = () => {
       },
     }));
   };
-  
+
   const handleAutoSaveClient2 = (values) => {
     if (JSON.stringify(values) === JSON.stringify(formData.insurableNeeds.client2)) return;
-    
+
     setFormData(prev => ({
       ...prev,
       insurableNeeds: {
@@ -56,7 +65,7 @@ const InsurableNeeds = () => {
       },
     }));
   };
-  
+
 
   return (
     <div>
@@ -113,7 +122,11 @@ const InsurableNeeds = () => {
                     />
                   </Grid>
                   <Grid item xs={12}>
-                    <h4>Total Insurable Need: ${calculateTotal(values)}</h4>
+                    <Typography variant="h6">
+                      <span style={spanStyle}>
+                        Total Insurable Need: ${calculateTotal(values)}
+                      </span>
+                    </Typography>
                   </Grid>
                 </Grid>
                 <AutoSave save={handleAutoSaveClient1} />

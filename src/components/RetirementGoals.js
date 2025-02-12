@@ -2,8 +2,18 @@
 import React, { useContext } from 'react';
 import { Formik, Form } from 'formik';
 import { FormContext } from '../context/FormContext';
-import { Button, Grid, TextField } from '@mui/material';
+import { Grid, TextField, Typography } from '@mui/material';
 import AutoSave from './AutoSave';
+
+const spanStyle = {
+  backgroundColor: '#77ED8B',
+  borderRadius: '5px',
+  color: '#118D57',
+  padding: '10px',
+  display: 'inline-block',
+  fontWeight: 600,
+  fontSize: '14px',
+};
 
 const RetirementGoals = () => {
   const { formData, setFormData } = useContext(FormContext);
@@ -32,7 +42,6 @@ const RetirementGoals = () => {
 
   const handleAutoSaveClient1 = (values) => {
     if (JSON.stringify(values) === JSON.stringify(formData.retirementGoals.client1)) return;
-    
     setFormData(prev => ({
       ...prev,
       retirementGoals: {
@@ -41,10 +50,9 @@ const RetirementGoals = () => {
       },
     }));
   };
-  
+
   const handleAutoSaveClient2 = (values) => {
     if (JSON.stringify(values) === JSON.stringify(formData.retirementGoals.client2)) return;
-    
     setFormData(prev => ({
       ...prev,
       retirementGoals: {
@@ -53,7 +61,6 @@ const RetirementGoals = () => {
       },
     }));
   };
-  
 
   return (
     <div>
@@ -109,9 +116,9 @@ const RetirementGoals = () => {
                     />
                   </Grid>
                   <Grid item xs={12}>
-                    <h4>
-                      Total Needed for Retirement: ${calculateTotalRetirement(values)}
-                    </h4>
+                    <Typography variant="h6" >
+                    <span style={spanStyle}>Total Needed for Retirement: ${calculateTotalRetirement(values)}</span>
+                    </Typography>
                   </Grid>
                 </Grid>
                 <AutoSave save={handleAutoSaveClient1} />
@@ -170,13 +177,12 @@ const RetirementGoals = () => {
                       />
                     </Grid>
                     <Grid item xs={12}>
-                      <h4>
-                        Total Needed for Retirement: ${calculateTotalRetirement(values)}
-                      </h4>
+                      <Typography variant="h4" style={{ marginTop: '10px', marginBottom: '10px' }}>
+                        Total Needed for Retirement: <span style={spanStyle}>${calculateTotalRetirement(values)}</span>
+                      </Typography>
                     </Grid>
                   </Grid>
                   <AutoSave save={handleAutoSaveClient2} />
-
                 </Form>
               )}
             </Formik>

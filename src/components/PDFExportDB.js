@@ -12,6 +12,94 @@ const formatDate = (dateInput) => {
   return `${month}/${day}/${year}`;
 };
 
+// src/components/PDFExportDB.js
+const styles = `
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 20px;
+      background: white;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+    h1, h2 {
+      color: #133857;
+      margin-bottom: 10px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+      border-bottom: 3px solid #133857;
+      padding-bottom: 10px;
+    }
+    h2 {
+      font-size: 22px;
+      border-left: 5px solid #133857;
+      padding-left: 10px;
+    }
+    .section {
+      padding: 15px;
+      margin-bottom: 20px;
+      background: #ffffff;
+      border-left: 5px solid #3498db;
+      box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1);
+      border-radius: 5px;
+    }
+    .section:nth-child(even) {
+      border-left: 5px solid #e67e22;
+    }
+    .info {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    .info p {
+      width: 48%;
+      margin: 5px 0;
+      padding: 5px;
+      background: #f1f1f1;
+      border-radius: 5px;
+    }
+    .separator {
+      height: 2px;
+      background: #ddd;
+      margin: 30px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f1f1f1;
+    }
+    .footer {
+      text-align: center;
+      font-size: 14px;
+      margin-top: 30px;
+      color: #555;
+    }
+  </style>
+`;
+
+
 // Calcula Total Insurable Need: (debt + income + education - subtractInsurances)
 const calculateInsurableTotal = (data) => {
   return Number(data.debt) + Number(data.income) + Number(data.education) - Number(data.subtractInsurances);
