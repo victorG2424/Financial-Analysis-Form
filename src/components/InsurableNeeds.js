@@ -179,9 +179,7 @@ const InsurableNeeds = () => {
                     </Grid>
                   </Grid>
                   <AutoSave save={handleAutoSaveClient2} />
-                  <Button variant="contained" color="primary" type="submit" style={{ marginTop: '10px' }}>
-                    Save Client 2
-                  </Button>
+
                 </Form>
               )}
             </Formik>

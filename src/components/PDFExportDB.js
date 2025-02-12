@@ -279,7 +279,7 @@ const generateHTMLForClient = (fullData) => {
     </div>
   `;
 
-  // Página 5: Tax Information en tres columnas
+  // Página 5: Tax Information en tres columnas y Grand Total
   const taxInfo = fullData.taxData ? `
     <div class="container">
       <div class="section">
@@ -341,6 +341,7 @@ const generateHTMLForClient = (fullData) => {
 
   const page6 = additional;
 
+  // Combinar todas las páginas en un HTML completo
   const html = `
     <!DOCTYPE html>
     <html>

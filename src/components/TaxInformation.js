@@ -20,12 +20,6 @@ const TaxNowFields = () => {
   const handleChange = (field, value) => {
     const newVal = Number(value) || 0;
     setFieldValue(`taxNow.${field}`, newVal);
-    // Recalcular total Tax Now
-    const total =
-      Number(values.taxNow.checking) +
-      Number(values.taxNow.savings) +
-      Number(values.taxNow.other);
-    setFieldValue('taxNow.total', total);
   };
 
   return (
@@ -37,7 +31,7 @@ const TaxNowFields = () => {
             fullWidth
             label="Checking ($)"
             type="number"
-            style={{ marginBottom: '10px' }}
+            style={{ marginTop: '10px', marginBottom: '5px' }}
             onChange={(e) => handleChange('checking', e.target.value)}
           />
         )}
@@ -49,7 +43,7 @@ const TaxNowFields = () => {
             fullWidth
             label="Savings ($)"
             type="number"
-            style={{ marginBottom: '10px' }}
+            style={{ marginTop: '10px', marginBottom: '5px' }}
             onChange={(e) => handleChange('savings', e.target.value)}
           />
         )}
@@ -61,14 +55,14 @@ const TaxNowFields = () => {
             fullWidth
             label="Other ($)"
             type="number"
-            style={{ marginBottom: '10px' }}
+            style={{ marginTop: '10px', marginBottom: '5px' }}
             onChange={(e) => handleChange('other', e.target.value)}
           />
         )}
       </FastField>
       <div style={{ marginTop: '8px' }}>
-        <Typography variant="body1">
-          <strong>Total ($):</strong> {values.taxNow.total}
+        <Typography variant="h6">
+          Total: ${Number(values.taxNow.checking || 0) + Number(values.taxNow.savings || 0) + Number(values.taxNow.other || 0)}
         </Typography>
       </div>
     </>
@@ -81,11 +75,6 @@ const TaxLaterFields = () => {
   const handleChange = (field, value) => {
     const newVal = Number(value) || 0;
     setFieldValue(`taxLater.${field}`, newVal);
-    const total =
-      Number(values.taxLater.iras) +
-      Number(values.taxLater.retirementPlan) +
-      Number(values.taxLater.other);
-    setFieldValue('taxLater.total', total);
   };
 
   return (
@@ -97,7 +86,7 @@ const TaxLaterFields = () => {
             fullWidth
             label="IRAs ($)"
             type="number"
-            style={{ marginBottom: '10px' }}
+            style={{ marginTop: '10px', marginBottom: '5px' }}
             onChange={(e) => handleChange('iras', e.target.value)}
           />
         )}
@@ -109,7 +98,7 @@ const TaxLaterFields = () => {
             fullWidth
             label="401(k)/403(b) ($)"
             type="number"
-            style={{ marginBottom: '10px' }}
+            style={{ marginTop: '10px', marginBottom: '5px' }}
             onChange={(e) => handleChange('retirementPlan', e.target.value)}
           />
         )}
@@ -121,14 +110,14 @@ const TaxLaterFields = () => {
             fullWidth
             label="Other ($)"
             type="number"
-            style={{ marginBottom: '10px' }}
+            style={{ marginTop: '10px', marginBottom: '5px' }}
             onChange={(e) => handleChange('other', e.target.value)}
           />
         )}
       </FastField>
       <div style={{ marginTop: '8px' }}>
-        <Typography variant="body1">
-          <strong>Total ($):</strong> {values.taxLater.total}
+        <Typography variant="h6">
+          Total: ${Number(values.taxLater.iras || 0) + Number(values.taxLater.retirementPlan || 0) + Number(values.taxLater.other || 0)}
         </Typography>
       </div>
     </>
@@ -141,11 +130,6 @@ const TaxAdvantagedFields = () => {
   const handleChange = (field, value) => {
     const newVal = Number(value) || 0;
     setFieldValue(`taxAdvantaged.${field}`, newVal);
-    const total =
-      Number(values.taxAdvantaged.rothIras) +
-      Number(values.taxAdvantaged.plan529) +
-      Number(values.taxAdvantaged.lifeInsurance);
-    setFieldValue('taxAdvantaged.total', total);
   };
 
   return (
@@ -157,7 +141,7 @@ const TaxAdvantagedFields = () => {
             fullWidth
             label="Roth IRAs ($)"
             type="number"
-            style={{ marginBottom: '10px' }}
+            style={{ marginTop: '10px', marginBottom: '5px' }}
             onChange={(e) => handleChange('rothIras', e.target.value)}
           />
         )}
@@ -169,7 +153,7 @@ const TaxAdvantagedFields = () => {
             fullWidth
             label="529 Plan ($)"
             type="number"
-            style={{ marginBottom: '10px' }}
+            style={{ marginTop: '10px', marginBottom: '5px' }}
             onChange={(e) => handleChange('plan529', e.target.value)}
           />
         )}
@@ -181,14 +165,14 @@ const TaxAdvantagedFields = () => {
             fullWidth
             label="Life Ins/Other ($)"
             type="number"
-            style={{ marginBottom: '10px' }}
+            style={{ marginTop: '10px', marginBottom: '5px' }}
             onChange={(e) => handleChange('lifeInsurance', e.target.value)}
           />
         )}
       </FastField>
       <div style={{ marginTop: '8px' }}>
-        <Typography variant="body1">
-          <strong>Total ($):</strong> {values.taxAdvantaged.total}
+        <Typography variant="h6">
+          Total: ${Number(values.taxAdvantaged.rothIras || 0) + Number(values.taxAdvantaged.plan529 || 0) + Number(values.taxAdvantaged.lifeInsurance || 0)}
         </Typography>
       </div>
     </>
@@ -216,66 +200,78 @@ const TaxInformation = () => {
     <div>
       <h2>Tax Information - Client 1</h2>
       <Formik initialValues={initialValues} onSubmit={onSubmit} enableReinitialize>
-        {({ values, handleChange, setFieldValue }) => (
-          <Form>
-            <Grid container spacing={2}>
-              {/* Tax Now */}
-              <Grid item xs={4}>
-                <h4>Tax Now</h4>
-                <TaxNowFields />
+        {({ values, handleChange, setFieldValue }) => {
+          // Calcular totales de cada grupo
+          const currentTaxNowTotal =
+            Number(values.taxNow.checking || 0) +
+            Number(values.taxNow.savings || 0) +
+            Number(values.taxNow.other || 0);
+          const currentTaxLaterTotal =
+            Number(values.taxLater.iras || 0) +
+            Number(values.taxLater.retirementPlan || 0) +
+            Number(values.taxLater.other || 0);
+          const currentTaxAdvTotal =
+            Number(values.taxAdvantaged.rothIras || 0) +
+            Number(values.taxAdvantaged.plan529 || 0) +
+            Number(values.taxAdvantaged.lifeInsurance || 0);
+          const currentGrandTotal = currentTaxNowTotal + currentTaxLaterTotal + currentTaxAdvTotal;
+
+          return (
+            <Form>
+              <Grid container spacing={2}>
+                {/* Las tres columnas */}
+                <Grid item xs={4}>
+                  <h4>Tax Now</h4>
+                  <TaxNowFields />
+                </Grid>
+                <Grid item xs={4}>
+                  <h4>Tax Later</h4>
+                  <TaxLaterFields />
+                </Grid>
+                <Grid item xs={4}>
+                  <h4>Tax Advantaged</h4>
+                  <TaxAdvantagedFields />
+                </Grid>
+ 
+                {/* Monthly Savings */}
+                <Grid item xs={12}>
+                  <h4>How much money can you comfortably put aside each month?</h4>
+                  {["200", "500", "1000", "1500", "2500", "5000", "10000", "10000+"].map(option => (
+                    <FormControlLabel
+                      key={option}
+                      control={
+                        <Checkbox
+                          name="monthlySavings"
+                          value={option}
+                          checked={values.monthlySavings.includes(option)}
+                          onChange={handleChange}
+                          style={{ marginBottom: '5px' }}
+                        />
+                      }
+                      label={`$${option}`}
+                    />
+                  ))}
+                  <Typography variant="h6" style={{ marginTop: '10px' }}>
+                    Monthly Savings: {values.monthlySavings && values.monthlySavings.length > 0 ? values.monthlySavings.join(', ') : "0"}
+                  </Typography>
+                </Grid>
+                {/* Plan Option */}
+                <Grid item xs={12}>
+                  <h4>If we can put together a plan to show you how to achieve all this, would that be something you would take advantage of?</h4>
+                  <RadioGroup row name="planOption" value={values.planOption} onChange={handleChange}>
+                    <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
+                    <FormControlLabel value="No" control={<Radio />} label="No" />
+                  </RadioGroup>
+                  <Typography variant="h6" style={{ marginTop: '10px' }}>
+                    Plan Option: {values.planOption || "No"}
+                  </Typography>
+                </Grid>
               </Grid>
-              {/* Tax Later */}
-              <Grid item xs={4}>
-                <h4>Tax Later</h4>
-                <TaxLaterFields />
-              </Grid>
-              {/* Tax Advantaged */}
-              <Grid item xs={4}>
-                <h4>Tax Advantaged</h4>
-                <TaxAdvantagedFields />
-              </Grid>
-              {/* Monthly Savings */}
-              <Grid item xs={12}>
-                <h4>How much money can you comfortably put aside each month?</h4>
-                {["200", "500", "1000", "1500", "2500", "5000", "10000", "10000+"].map(option => (
-                  <FormControlLabel
-                    key={option}
-                    control={
-                      <Checkbox
-                        name="monthlySavings"
-                        value={option}
-                        checked={values.monthlySavings.includes(option)}
-                        onChange={handleChange}
-                      />
-                    }
-                    label={`$${option}`}
-                    style={{ marginBottom: '10px' }}
-                  />
-                ))}
-                <Typography variant="h6" style={{ marginTop: '10px' }}>
-                  Monthly Savings: {values.monthlySavings && values.monthlySavings.length > 0 ? values.monthlySavings.join(', ') : "0"}
-                </Typography>
-              </Grid>
-              {/* Plan Option */}
-              <Grid item xs={12}>
-                <h4>If we can put together a plan to show you how to achieve all this, would that be something you would take advantage of?</h4>
-                <RadioGroup row name="planOption" value={values.planOption} onChange={handleChange}>
-                  <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
-                  <FormControlLabel value="No" control={<Radio />} label="No" />
-                </RadioGroup>
-                <Typography variant="h6" style={{ marginTop: '10px' }}>
-                  Plan Option: {values.planOption || "No"}
-                </Typography>
-              </Grid>
-            </Grid>
-            <AutoSave save={handleAutoSave} />
-            <div style={{ marginTop: '20px' }}>
-              <Button variant="contained" color="primary" type="submit">
-                Next Form
-              </Button>
-            </div>
-          </Form>
-        )}
+              <AutoSave save={handleAutoSave} />
+
+            </Form>
+          );
+        }}
       </Formik>
     </div>
   );
